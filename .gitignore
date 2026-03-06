@@ -1,3 +1,6 @@
-.vs_code
-.idea
+.vscode/
+.idea/
 .DS_Store
+
+# Notes perso
+perso.notes.txt
