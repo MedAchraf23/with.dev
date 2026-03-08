@@ -1,34 +1,27 @@
 import { createBrowserRouter } from "react-router-dom";
 import NotFoundPage from "../../presentation/pages/NotFoundPage.tsx";
-import MainLayout from "@/presentation/layouts/MainLayout.tsx";
 import RootLayout from "@/presentation/layouts/RootLayout.tsx";
 import AuthLayout from "@/presentation/layouts/AuthLayout.tsx";
-import {LoginPage} from "@/presentation/pages/LoginPage.tsx";
+import AuthPage from "@/presentation/pages/AuthPage.tsx";
 
+/**
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 export const router = createBrowserRouter([
     {
         element: <RootLayout />,
         children: [
+            // Routes publiques
             {
-                path:"/auth",
+                path: "/auth",
                 element: <AuthLayout />,
                 children: [
-                    {
-                        index: true,
-                        element: <LoginPage />
-                    }
-                ]
+                    { index: true, element: <AuthPage /> },
+                ],
             },
-            {
-                path: "*",
-                element: <MainLayout />,
-                children: [
-                    {
-                        index: true,
-                        element: <NotFoundPage />
-                    },
-                ]
-            }
-        ]
+
+            // 404
+            { path: "*", element: <NotFoundPage /> },
+        ],
     },
 ]);
