@@ -14,9 +14,9 @@ const AuthService = {
         return session;
     },
 
-    onAuthStateChange(callback: (session: Session | null) => void) {
+    onAuthStateChange(callback: (event: string, session: Session | null) => void) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (_event, session) => callback(session)
+            (event, session) => callback(event, session)
         );
         return subscription;
     },
@@ -33,6 +33,16 @@ const AuthService = {
         if (error) {
             throw error;
         }
+    },
+
+    async signInWithGoogle(): Promise<void> {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+            },
+        });
+        if (error) throw error;
     },
 
     async signOut(): Promise<void> {
