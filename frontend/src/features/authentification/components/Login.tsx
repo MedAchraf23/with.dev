@@ -1,26 +1,19 @@
-import {useEffect, useState} from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "@tanstack/react-form";
-import { FaGoogle, FaGithub, FaMicrosoft } from "react-icons/fa";
+import { FaGoogle, FaGithub, FaMicrosoft, FaGitlab, FaLinkedin } from "react-icons/fa";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
 import { addToast } from "@heroui/toast";
 import { useAuth } from "@/features/authentification/hooks/use-auth.hook.ts";
 import { useGoogleAuth } from "@/features/authentification/hooks/use-google-auth.hook.ts";
-import AuthService from "@/features/authentification/services/auth.service.ts";
 
 
 export default function Login() {
     const { signIn } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
-
-    // todo : remove after debug
-    useEffect(() => {
-        AuthService.signOut();
-        console.log('Deconnexion ! ');
-    }, []);
 
     const { signInWithGoogle, loading: googleLoading } = useGoogleAuth();
 
@@ -66,8 +59,10 @@ export default function Login() {
                 >
                     Google
                 </Button>
-                <Button size="sm" className="bg-black text-white" startContent={<FaGithub size={14} />}>GitHub</Button>
-                <Button size="sm" className="bg-black text-white" startContent={<FaMicrosoft size={14} />}>Microsoft</Button>
+                <Button isDisabled size="sm" className="bg-black text-white" startContent={<FaLinkedin size={14} />}>Linkedin</Button>
+                <Button isDisabled size="sm" className="bg-black text-white" startContent={<FaGithub size={14} />}>GitHub</Button>
+                <Button isDisabled size="sm" className="bg-black text-white" startContent={<FaGitlab size={14} />}>GitLab</Button>
+                <Button isDisabled size="sm" className="bg-black text-white" startContent={<FaMicrosoft size={14} />}>Microsoft</Button>
             </section>
 
             <div className="flex items-center gap-4">
