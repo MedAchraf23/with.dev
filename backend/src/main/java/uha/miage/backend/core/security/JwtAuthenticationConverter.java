@@ -28,27 +28,20 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        // Récupérer l'email depuis le token JWT
-        // Supabase utilise généralement "email" comme claim
         String email = jwt.getClaimAsString("email");
 
         if (email == null || email.isEmpty()) {
-            // Fallback sur le claim "sub" si "email" n'existe pas
             email = jwt.getSubject();
         }
 
-        // Variable finale pour utilisation dans la lambda
         final String userEmail = email;
 
-        // Récupérer l'utilisateur depuis la base de données
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé pour l'email: " + userEmail));
 
-        // Créer la liste des autorités basées sur le rôle
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
-        // Retourner un token d'authentification Spring Security
         return new JwtAuthenticationToken(jwt, authorities, userEmail);
     }
 }

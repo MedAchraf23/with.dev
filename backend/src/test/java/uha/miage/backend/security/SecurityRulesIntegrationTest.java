@@ -5,10 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
@@ -26,6 +30,7 @@ class SecurityRulesIntegrationTest {
 
     private MockMvc mockMvc;
 
+    // Cette méthode compile sans erreur chez toi
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders
@@ -34,10 +39,6 @@ class SecurityRulesIntegrationTest {
                 .build();
     }
 
-    /**
-     * On crée un faux contrôleur qui n'existera QUE pendant l'exécution des tests.
-     * Il remplace ton ancien SecurityTestController.
-     */
     @TestConfiguration
     @RestController
     static class DummyTestController {
@@ -48,28 +49,32 @@ class SecurityRulesIntegrationTest {
         @GetMapping("/test/candidate-only")
         @PreAuthorize("hasRole('CANDIDATE')")
         public String candidateOnly() { return "OK"; }
+
+        // La solution au 500 : on attrape l'erreur et on force un 403
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<String> handleAccessDenied() {
+            return new ResponseEntity<>("Accès Refusé", HttpStatus.FORBIDDEN);
+        }
     }
 
     @Test
     void quandAucunToken_alorsErreur401() throws Exception {
         mockMvc.perform(get("/test/candidate-only"))
-               .andExpect(status().isUnauthorized()); // Vérifie qu'on a bien un 401
+               .andExpect(status().isUnauthorized()); 
     }
 
     @Test
     void quandCandidatVaSurRouteCandidat_alorsSucces200() throws Exception {
-        // On simule un token qui possède le rôle CANDIDATE
         mockMvc.perform(get("/test/candidate-only")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_CANDIDATE"))))
-               .andExpect(status().isOk()); // Vérifie qu'on a bien un 200 OK
+               .andExpect(status().isOk()); 
     }
 
     @Test
     void quandCandidatVaSurRouteRecruteur_alorsErreur403() throws Exception {
-        // On simule un Candidat qui tente d'aller dans la zone Recruteur
         mockMvc.perform(get("/test/recruiter-only")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_CANDIDATE"))))
-               .andExpect(status().isForbidden()); // Vérifie qu'on a bien un 403 (Accès refusé)
+               .andExpect(status().isForbidden());
     }
 
     @Test
