@@ -10,7 +10,7 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +25,7 @@ import uha.miage.backend.domain.user.entity.Recruiter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class CandidateRating extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

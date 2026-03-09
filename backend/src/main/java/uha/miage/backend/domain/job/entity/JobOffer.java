@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,7 +30,7 @@ import uha.miage.backend.domain.user.entity.Recruiter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class JobOffer extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

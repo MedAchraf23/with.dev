@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,7 +28,7 @@ import uha.miage.backend.domain.common.enums.WorkMode;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Candidate extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)

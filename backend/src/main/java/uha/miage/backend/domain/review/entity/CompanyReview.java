@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,7 +27,7 @@ import uha.miage.backend.domain.user.entity.Candidate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class CompanyReview extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

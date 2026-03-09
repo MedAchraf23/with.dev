@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +23,7 @@ import uha.miage.backend.domain.common.BaseEntity;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class CandidateOnboarding extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
