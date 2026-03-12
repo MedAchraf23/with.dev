@@ -62,9 +62,6 @@ public class Candidate extends BaseEntity {
     @Column(name = "years_of_experience")
     private Integer yearsOfExperience;
 
-    @Column(length = 100)
-    private String availability;
-
     @Column(name = "desired_salary_min", precision = 10, scale = 2)
     private BigDecimal desiredSalaryMin;
 
