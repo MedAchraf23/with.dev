@@ -8,8 +8,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
-import uha.miage.backend.domain.entity.user.User;
-import uha.miage.backend.domain.repository.user.UserRepository;
+import uha.miage.backend.domain.user.entity.User;
+import uha.miage.backend.domain.user.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
