@@ -10,7 +10,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 /**
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
-export function AuthProvider({ children }: { children: ReactNode }) {
+export default function AuthProvider({ children }: { children: ReactNode }) {
+
     const [state, setState] = useState<AuthState>({
         user: null,
         session: null,
@@ -22,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setState({ user: session?.user ?? null, session, loading: false })
         });
 
-        const subscription = AuthService.onAuthStateChange((session) => {
+        const subscription = AuthService.onAuthStateChange((_event, session) => {
             setState({ user: session?.user ?? null, session, loading: false })
         });
 
@@ -46,4 +47,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             {children}
         </AuthContext.Provider>
     );
+
 }
