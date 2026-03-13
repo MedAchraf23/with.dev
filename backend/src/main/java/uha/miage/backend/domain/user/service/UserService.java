@@ -1,6 +1,5 @@
 package uha.miage.backend.domain.user.service;
 
-import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,23 +25,5 @@ public class UserService {
         }
 
         return user;
-    }
-
-    @Transactional
-    public void updateIdentity(UUID userId, String firstName, String lastName) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-    }
-
-    @Transactional
-    public void softDelete(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
-
-        user.setIsActive(false);
-        user.setDeletedAt(Instant.now());
     }
 }
