@@ -75,6 +75,22 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
+    void postCandidates_quandNomManquant_alorsRetourne400() throws Exception {
+        UUID userId = UUID.randomUUID();
+        userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
+
+        Map<String, Object> request = Map.of(
+                "firstName", "Jean"
+        );
+
+        mockMvc.perform(post("/api/candidates")
+                        .with(jwt().jwt(j -> j.subject(userId.toString())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void postCandidates_quandDoublon_alorsRetourne400() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());

@@ -1,5 +1,6 @@
 package uha.miage.backend.api.candidate;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public record CreateCandidateRequest(
         String photoUrl,
         String linkedinUrl,
         String githubUrl,
+        @PositiveOrZero(message = "Les années d'expérience ne peuvent pas être négatives")
         Integer yearsOfExperience,
         @PositiveOrZero(message = "Le salaire minimum ne peut pas être négatif")
         BigDecimal desiredSalaryMin,
@@ -34,6 +36,17 @@ public record CreateCandidateRequest(
         List<ContractType> preferredContractTypes,
         Boolean isOpenToWork
 ) {
+    @AssertTrue(message = "Le salaire minimum ne peut pas dépasser le salaire maximum")
+    private boolean isSalaryRangeValid() {
+        if (desiredSalaryMin == null || desiredSalaryMax == null) return true;
+        return desiredSalaryMin.compareTo(desiredSalaryMax) <= 0;
+    }
+
+    @AssertTrue(message = "Le TJM minimum ne peut pas dépasser le TJM maximum")
+    private boolean isTjmRangeValid() {
+        if (desiredTjmMin == null || desiredTjmMax == null) return true;
+        return desiredTjmMin.compareTo(desiredTjmMax) <= 0;
+    }
 }
 
 
