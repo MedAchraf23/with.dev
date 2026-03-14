@@ -14,9 +14,8 @@ export const useGoogleAuth = () => {
         setError(null);
         try {
             await AuthService.signInWithGoogle();
-
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : "Erreur lors de la connexion Google";
+            const message = "Erreur lors de la connexion Google";
             setError(message);
             addToast({
                 title: "Échec de connexion",

@@ -5,6 +5,7 @@ import AuthLayout from "@/presentation/layouts/AuthLayout.tsx";
 import AuthPage from "@/presentation/pages/AuthPage.tsx";
 import Dashboard from "@/presentation/pages/Dashboard.tsx";
 import GoogleCallback from "@/features/authentification/components/GoogleCallback.tsx";
+import AuthGuard from "@/presentation/guards/AuthGuard.tsx";
 
 /**
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
@@ -28,15 +29,19 @@ export const router = createBrowserRouter([
                     }
                 ],
             },
-
-            // Routes protégées
             {
-                path: '/dashboard',
-                element: <Dashboard />
+                element: <AuthGuard />,
+                children: [
+                    {
+                        path: '/dashboard',
+                        element: <Dashboard />
+                    },
+                ]
             },
-
-            // 404
-            { path: "*", element: <NotFoundPage /> },
+            {
+                path: "*",
+                element: <NotFoundPage />
+            },
         ],
     },
-]);
+],);

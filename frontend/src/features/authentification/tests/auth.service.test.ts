@@ -20,6 +20,49 @@ describe('AuthService - unit', () => {
 
     beforeEach(() => vi.clearAllMocks());
 
+    describe('getSession', () => {
+
+        it('should return a session if it exists', async () => {
+            const fakeSession = { access_token: 'abc', user: { id: '1' } };
+            vi.mocked(supabase.auth.getSession).mockResolvedValue({
+                data: { session: fakeSession },
+                error: null,
+            } as any);
+
+            const session = await AuthService.getSession();
+            expect(session).toEqual(fakeSession);
+        });
+
+        it('should return null if there is no session', async () => {
+            vi.mocked(supabase.auth.getSession).mockResolvedValue({
+                data: { session: null },
+                error: null,
+            } as any);
+
+            const session = await AuthService.getSession();
+            expect(session).toBeNull();
+        });
+
+        it('should throw if an error occurs', async () => {
+            vi.mocked(supabase.auth.getSession).mockResolvedValue({
+                data: { session: null },
+                error: { message: 'Session error' },
+            } as any);
+
+            await expect(AuthService.getSession()).rejects.toThrow();
+        });
+
+    });
+
+    describe('onAuthStateChange', () => {
+
+        it('should return a subscription', () => {
+            const subscription = AuthService.onAuthStateChange(vi.fn());
+            expect(subscription).toHaveProperty('unsubscribe');
+        });
+
+    });
+
     describe('signIn', () => {
 
         it('shouldn\'t throw if request success', async () => {
@@ -71,29 +114,15 @@ describe('AuthService - unit', () => {
 
             await expect(AuthService.signOut()).resolves.toBeUndefined();
         });
-    });
 
-    describe('getSession', () => {
-        it('should return a session if it exists', async () => {
-            const fakeSession = { access_token: 'abc', user: { id: '1' } };
-            vi.mocked(supabase.auth.getSession).mockResolvedValue({
-                data: { session: fakeSession },
-                error: null,
+        it('should throw if an error occurs', async () => {
+            vi.mocked(supabase.auth.signOut).mockResolvedValue({
+                error: { message: 'Sign out failed' },
             } as any);
 
-            const session = await AuthService.getSession();
-            expect(session).toEqual(fakeSession);
-        });
-
-        it('should return null if there is no session', async () => {
-            vi.mocked(supabase.auth.getSession).mockResolvedValue({
-                data: { session: null },
-                error: null,
-            } as any);
-
-            const session = await AuthService.getSession();
-            expect(session).toBeNull();
+            await expect(AuthService.signOut()).rejects.toThrow();
         });
 
     });
+
 });

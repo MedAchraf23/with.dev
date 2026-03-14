@@ -8,13 +8,15 @@ import { Divider } from "@heroui/divider";
 import { addToast } from "@heroui/toast";
 import { useAuth } from "@/features/authentification/hooks/use-auth.hook.ts";
 import { useGoogleAuth } from "@/features/authentification/hooks/use-google-auth.hook.ts";
-
+import { validatePassword } from "@/infrastructure/validators/password.validator.ts";
+import { validateEmail } from "@/infrastructure/validators/email.validator.ts";
 
 export default function Login() {
-    const { signIn } = useAuth();
     const navigate = useNavigate();
+
     const [error, setError] = useState<string | null>(null);
 
+    const { signIn } = useAuth();
     const { signInWithGoogle, loading: googleLoading } = useGoogleAuth();
 
     const form = useForm({
@@ -25,6 +27,7 @@ export default function Login() {
         onSubmit: async ({ value }) => {
             setError(null);
             try {
+                console.log("onSubmit called", value);
                 await signIn(value.email, value.password);
                 addToast({
                     title: "Connexion réussie",
@@ -33,22 +36,14 @@ export default function Login() {
                     timeout: 3000,
                 });
                 navigate("/dashboard");
-
             } catch (err: any) {
-                setError(err.message ?? "Erreur de connexion");
+                setError("Erreur de connexion");
             }
         },
     });
 
     return (
-        <form
-            onSubmit={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                form.handleSubmit()
-            }}
-            className="flex flex-col gap-4 w-full"
-        >
+        <form className="flex flex-col gap-4 w-full">
             <section className="flex gap-2 w-full">
                 <Button
                     size="sm"
@@ -76,8 +71,8 @@ export default function Login() {
             <form.Field
                 name="email"
                 validators={{
-                    onChange: ({ value }) =>
-                        !value ? "Email requis" : !value.includes("@") ? "Email invalide" : undefined,
+                    onBlur: ({ value }) => validateEmail(value),
+                    onChange: ({value}) => validateEmail(value)
                 }}
             >
                 {(field) => (
@@ -89,8 +84,9 @@ export default function Login() {
                         size="sm"
                         isRequired
                         value={field.state.value}
+                        onBlur={field.handleBlur}
                         onValueChange={(v) => field.handleChange(v)}
-                        isInvalid={field.state.meta.isTouched && !!field.state.meta.errors.length}
+                        isInvalid={!!field.state.meta.errors.length}
                         errorMessage={field.state.meta.errors[0]?.toString()}
                     />
                 )}
@@ -99,8 +95,8 @@ export default function Login() {
             <form.Field
                 name="password"
                 validators={{
-                    onChange: ({ value }) =>
-                        !value ? "Mot de passe requis" : value.length < 6 ? "6 caractères minimum" : undefined,
+                    onBlur: ({ value }) => validatePassword(value),
+                    onChange: ({value}) => validatePassword(value)
                 }}
             >
                 {(field) => (
@@ -112,8 +108,9 @@ export default function Login() {
                         size="sm"
                         isRequired
                         value={field.state.value}
+                        onBlur={field.handleBlur}
                         onValueChange={(v) => field.handleChange(v)}
-                        isInvalid={field.state.meta.isTouched && !!field.state.meta.errors.length}
+                        isInvalid={!!field.state.meta.errors.length}
                         errorMessage={field.state.meta.errors[0]?.toString()}
                     />
                 )}
@@ -122,10 +119,15 @@ export default function Login() {
                 Mot de passe oublié ?
             </button>
 
-
             <form.Subscribe selector={(state) => state.isSubmitting}>
                 {(isSubmitting) => (
-                    <Button type="submit" isLoading={isSubmitting} className="text-white bg-black mt-4">
+                    <Button
+                        className="text-white bg-black mt-4"
+                        isLoading={isSubmitting}
+                        onPress={async () => {
+                            await form.handleSubmit();
+                        }}
+                    >
                         Se connecter
                     </Button>
                 )}
