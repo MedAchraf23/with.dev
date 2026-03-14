@@ -27,7 +27,6 @@ export default function Login() {
         onSubmit: async ({ value }) => {
             setError(null);
             try {
-                console.log("onSubmit called", value);
                 await signIn(value.email, value.password);
                 addToast({
                     title: "Connexion réussie",

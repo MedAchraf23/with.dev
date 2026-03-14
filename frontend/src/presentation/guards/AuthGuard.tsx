@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { Spinner } from "@heroui/react";
 import { useAuth } from "@/features/authentification/hooks/use-auth.hook.ts";
 
@@ -7,19 +7,9 @@ import { useAuth } from "@/features/authentification/hooks/use-auth.hook.ts";
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
 export default function AuthGuard() {
-    const navigate = useNavigate();
-    const {session, loading} = useAuth();
+    const { session, loading } = useAuth();
 
-    if(loading) {
-        return <Spinner />
-    }
-
-    else if(!session) {
-        navigate('/auth');
-    }
-
-    else {
-        return <Outlet />;
-    }
-
+    if (loading) return <Spinner />;
+    if (!session) return <Navigate to="/auth" replace />;
+    return <Outlet />;
 }
