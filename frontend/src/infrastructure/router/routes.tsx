@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import RootLayout from "@/presentation/layouts/RootLayout.tsx";
 import AuthLayout from "@/presentation/layouts/AuthLayout.tsx";
-import AuthPage from "@/presentation/pages/AuthPage.tsx";
+import {AuthPage} from "@/presentation/pages/AuthPage.tsx";
 import Dashboard from "@/presentation/pages/Dashboard.tsx";
 import NotFoundPage from "@/presentation/pages/NotFoundPage.tsx";
 import GoogleCallback from "@/features/authentification/components/GoogleCallback.tsx";

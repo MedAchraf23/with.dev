@@ -1,5 +1,5 @@
-import {supabase} from "@/infrastructure/api/supabase.api.ts";
-import {AuthChangeEvent, Session, Subscription} from "@supabase/supabase-js";
+import { supabase } from "@/infrastructure/api/supabase.api.ts";
+import { AuthChangeEvent, Session, Subscription } from "@supabase/supabase-js";
 
 const AuthService = {
 

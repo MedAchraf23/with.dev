@@ -29,12 +29,12 @@ export default function AuthProvider({ children }: { children: ReactNode }): Rea
         return () => subscription.unsubscribe();
     }, []);
 
-    const signUp = async (email: string, password: string): Promise<void> => {
-        await AuthService.signUp(email, password);
-    }
-
     const signIn = async (email: string, password: string): Promise<void> => {
         await AuthService.signIn(email, password);
+    }
+
+    const signUp = async (email: string, password: string): Promise<void> => {
+        await AuthService.signUp(email, password);
     }
 
     const signOut = async (): Promise<void> => {
