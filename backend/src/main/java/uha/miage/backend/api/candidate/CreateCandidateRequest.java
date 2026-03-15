@@ -8,7 +8,7 @@ import java.util.List;
 import uha.miage.backend.domain.common.enums.ContractType;
 import uha.miage.backend.domain.common.enums.WorkMode;
 
-// TODO: Si onboarding multi-écrans, retirer les @NotBlank et ajouter PATCH /api/candidates/me
+// TODO: Si onboarding multi-écrans, retirer les @NotBlank et ajouter PATCH /candidates/me
 public record CreateCandidateRequest(
         @NotBlank(message = "Le prénom est obligatoire")
         String firstName,

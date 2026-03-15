@@ -2,12 +2,15 @@ package uha.miage.backend.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.UUID;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,11 +36,20 @@ class CandidateServiceTest {
     private CandidateService candidateService;
 
     @Test
+    @DisplayName("Crée un candidat et assigne le rôle CANDIDATE au user")
     void create_quandUserValideSansDoublon_alorsCreeCandidatEtAssigneRole() {
         UUID userId = UUID.randomUUID();
-        User user = User.builder().id(userId).email("test@test.com").build();
-        Candidate candidate = Candidate.builder().build();
-        Candidate saved = Candidate.builder().id(1L).user(user).build();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .ignore(field(User::getRole))
+                .create();
+        Candidate candidate = Instancio.of(Candidate.class)
+                .ignore(field(Candidate::getId))
+                .ignore(field(Candidate::getUser))
+                .create();
+        Candidate saved = Instancio.of(Candidate.class)
+                .set(field(Candidate::getUser), user)
+                .create();
 
         when(userService.findAndValidateForOnboarding(userId)).thenReturn(user);
         when(candidateRepository.findByUserId(userId)).thenReturn(Optional.empty());
@@ -53,23 +65,31 @@ class CandidateServiceTest {
     }
 
     @Test
+    @DisplayName("Lève BadRequestException quand le candidat existe déjà")
     void create_quandDoublonCandidat_alorsBadRequestException() {
         UUID userId = UUID.randomUUID();
-        User user = User.builder().id(userId).email("test@test.com").build();
-        Candidate existing = Candidate.builder().id(1L).build();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .create();
+        Candidate existing = Instancio.create(Candidate.class);
 
         when(userService.findAndValidateForOnboarding(userId)).thenReturn(user);
         when(candidateRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
 
-        assertThatThrownBy(() -> candidateService.create(Candidate.builder().build(), userId, "Jean", "Dupont"))
+        Candidate candidate = Instancio.of(Candidate.class)
+                .ignore(field(Candidate::getId))
+                .create();
+
+        assertThatThrownBy(() -> candidateService.create(candidate, userId, "Jean", "Dupont"))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("Cet utilisateur a déjà un profil candidat");
     }
 
     @Test
+    @DisplayName("Retourne le candidat quand il existe")
     void getByUserId_quandCandidatExiste_alorsRetourneCandidat() {
         UUID userId = UUID.randomUUID();
-        Candidate candidate = Candidate.builder().id(1L).build();
+        Candidate candidate = Instancio.create(Candidate.class);
         when(candidateRepository.findByUserId(userId)).thenReturn(Optional.of(candidate));
 
         Candidate result = candidateService.getByUserId(userId);
@@ -78,6 +98,7 @@ class CandidateServiceTest {
     }
 
     @Test
+    @DisplayName("Lève ResourceNotFoundException quand le candidat n'existe pas")
     void getByUserId_quandCandidatInexistant_alorsResourceNotFoundException() {
         UUID userId = UUID.randomUUID();
         when(candidateRepository.findByUserId(userId)).thenReturn(Optional.empty());

@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +36,7 @@ class CandidateControllerIntegrationTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
+    @DisplayName("POST /candidates - Crée un candidat et retourne 201")
     void postCandidates_quandUserValideSansRole_alorsCreeCandidatEtRetourne201() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
@@ -46,7 +48,7 @@ class CandidateControllerIntegrationTest {
                 "city", "Mulhouse"
         );
 
-        mockMvc.perform(post("/api/candidates")
+        mockMvc.perform(post("/candidates")
                         .with(jwt().jwt(j -> j.subject(userId.toString())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -59,6 +61,7 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("POST /candidates - Retourne 400 quand le prénom est manquant")
     void postCandidates_quandPrenomManquant_alorsRetourne400() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
@@ -67,7 +70,7 @@ class CandidateControllerIntegrationTest {
                 "lastName", "Dupont"
         );
 
-        mockMvc.perform(post("/api/candidates")
+        mockMvc.perform(post("/candidates")
                         .with(jwt().jwt(j -> j.subject(userId.toString())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -75,6 +78,7 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("POST /candidates - Retourne 400 quand le nom est manquant")
     void postCandidates_quandNomManquant_alorsRetourne400() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
@@ -83,7 +87,7 @@ class CandidateControllerIntegrationTest {
                 "firstName", "Jean"
         );
 
-        mockMvc.perform(post("/api/candidates")
+        mockMvc.perform(post("/candidates")
                         .with(jwt().jwt(j -> j.subject(userId.toString())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -91,6 +95,7 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("POST /candidates - Retourne 400 quand le candidat existe déjà")
     void postCandidates_quandDoublon_alorsRetourne400() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
@@ -101,14 +106,14 @@ class CandidateControllerIntegrationTest {
         );
 
         // Première création
-        mockMvc.perform(post("/api/candidates")
+        mockMvc.perform(post("/candidates")
                         .with(jwt().jwt(j -> j.subject(userId.toString())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
 
         // Doublon
-        mockMvc.perform(post("/api/candidates")
+        mockMvc.perform(post("/candidates")
                         .with(jwt().jwt(j -> j.subject(userId.toString())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -116,19 +121,21 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("POST /candidates - Retourne 401 sans token JWT")
     void postCandidates_quandAucunToken_alorsRetourne401() throws Exception {
         Map<String, Object> request = Map.of(
                 "firstName", "Jean",
                 "lastName", "Dupont"
         );
 
-        mockMvc.perform(post("/api/candidates")
+        mockMvc.perform(post("/candidates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
+    @DisplayName("GET /candidates/me - Retourne le profil candidat existant")
     void getCandidatesMe_quandCandidatExiste_alorsRetourne200() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
@@ -139,14 +146,14 @@ class CandidateControllerIntegrationTest {
         );
 
         // Créer le candidat d'abord
-        mockMvc.perform(post("/api/candidates")
+        mockMvc.perform(post("/candidates")
                         .with(jwt().jwt(j -> j.subject(userId.toString())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
 
         // Récupérer le profil
-        mockMvc.perform(get("/api/candidates/me")
+        mockMvc.perform(get("/candidates/me")
                         .with(jwt().jwt(j -> j.subject(userId.toString()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Jean"))
@@ -155,17 +162,19 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("GET /candidates/me - Retourne 404 quand le candidat n'existe pas")
     void getCandidatesMe_quandCandidatInexistant_alorsRetourne404() throws Exception {
         UUID userId = UUID.randomUUID();
 
-        mockMvc.perform(get("/api/candidates/me")
+        mockMvc.perform(get("/candidates/me")
                         .with(jwt().jwt(j -> j.subject(userId.toString()))))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @DisplayName("GET /candidates/me - Retourne 401 sans token JWT")
     void getCandidatesMe_quandAucunToken_alorsRetourne401() throws Exception {
-        mockMvc.perform(get("/api/candidates/me"))
+        mockMvc.perform(get("/candidates/me"))
                 .andExpect(status().isUnauthorized());
     }
 }
