@@ -3,7 +3,7 @@ import { AuthContextType } from '@/features/authentification/interfaces/auth.typ
 import { AuthContext } from "@/features/authentification/contexts/AuthContext.tsx";
 
 /**
- * Hook pour consommer le contexte d'authentification.
+ * @function useAuth
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
 export function useAuth(): AuthContextType {

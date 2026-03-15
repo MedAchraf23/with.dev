@@ -1,9 +1,16 @@
+/**
+ * @function validateEmail
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 export function validateEmail(email: string): string|undefined {
     if(!email) {
         return "Email requis";
     }
-    if(!email.includes("@")) {
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRegex.test(email)) {
         return "Email invalide";
     }
+
     return undefined;
 }

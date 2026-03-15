@@ -1,17 +1,15 @@
 import { createContext, useState, useEffect, ReactNode } from 'react'
 import { AuthContextType, AuthState } from '@/features/authentification/interfaces/auth.type.ts'
 import AuthService from '@/features/authentification/services/auth.service'
+import {Session} from "@supabase/supabase-js";
 
-/**
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
+ * @function AuthProvider
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
 export default function AuthProvider({ children }: { children: ReactNode }) {
-
     const [state, setState] = useState<AuthState>({
         user: null,
         session: null,
@@ -19,9 +17,14 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     })
 
     useEffect(() => {
-        AuthService.getSession().then((session) => {
-            setState({ user: session?.user ?? null, session, loading: false })
-        });
+        AuthService.getSession()
+            .then((session: Session|null) => {
+                setState({ user: session?.user ?? null, session, loading: false })
+            })
+            .catch((error: unknown) => {
+                console.error('Failed to get session:', error);
+                setState({ user: null, session: null, loading: false });
+            });
 
         const subscription = AuthService.onAuthStateChange((_event, session) => {
             setState({ user: session?.user ?? null, session, loading: false })
@@ -47,5 +50,4 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
             {children}
         </AuthContext.Provider>
     );
-
 }

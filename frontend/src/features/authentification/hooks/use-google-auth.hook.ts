@@ -3,6 +3,7 @@ import { addToast } from "@heroui/toast";
 import AuthService from "@/features/authentification/services/auth.service.ts";
 
 /**
+ * @function useGoogleAuth
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
 export const useGoogleAuth = () => {

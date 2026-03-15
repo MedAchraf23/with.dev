@@ -1,12 +1,7 @@
-import {useEffect} from "react";
-import AuthService from "@/features/authentification/services/auth.service.ts";
-
+/**
+ * @function Dashboard
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 export default function Dashboard() {
-    useEffect(() => {
-        AuthService.getSession().then((session) => {
-            console.log('session:', session)
-        });
-    });
-
     return <p>Bonjour</p>;
 }

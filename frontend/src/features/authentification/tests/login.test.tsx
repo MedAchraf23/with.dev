@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Login from '../components/Login';
 
@@ -40,10 +40,17 @@ const submitForm = async () => {
     await userEvent.click(button);
 };
 
+/**
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 describe('Login Component - Unit', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+    });
+
+    afterEach(() => {
+        cleanup();
     });
 
     it('should render the form', () => {
@@ -60,7 +67,7 @@ describe('Login Component - Unit', () => {
             const { user } = renderLogin();
 
             await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'password123');
-            submitForm();
+            await submitForm();
 
             await waitFor(() => {
                 expect(screen.getByText('Email requis')).toBeInTheDocument();
@@ -83,7 +90,7 @@ describe('Login Component - Unit', () => {
             const { user } = renderLogin();
 
             await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
-            submitForm();
+            await submitForm();
 
             await waitFor(() => {
                 expect(screen.getByText('Mot de passe requis')).toBeInTheDocument();
@@ -112,7 +119,7 @@ describe('Login Component - Unit', () => {
 
             await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
             await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'password123');
-            submitForm();
+            await submitForm();
 
             await waitFor(() => {
                 expect(mockSignIn).toHaveBeenCalledWith('test@mail.com', 'password123');
@@ -127,7 +134,7 @@ describe('Login Component - Unit', () => {
 
             await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
             await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'password123');
-            submitForm();
+            await submitForm();
 
             await waitFor(() => {
                 expect(screen.getByText('Erreur de connexion')).toBeInTheDocument();

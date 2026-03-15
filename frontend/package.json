@@ -1,13 +1,14 @@
 {
-  "name": "vite-template",
+  "name": "with.dev",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint --fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "@heroui/accordion": "2.2.29",
@@ -65,8 +66,7 @@
     "react-icons": "^5.6.0",
     "react-router-dom": "^6.30.3",
     "tailwind-variants": "3.2.2",
-    "tailwindcss": "4.1.11",
-    "vitest": "^4.0.18"
+    "tailwindcss": "4.1.11"
   },
   "devDependencies": {
     "@eslint/compat": "1.2.8",
@@ -96,6 +96,7 @@
     "prettier": "3.5.3",
     "typescript": "5.6.3",
     "vite": "^6.4.1",
-    "vite-tsconfig-paths": "5.1.4"
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "^4.0.18"
   }
 }

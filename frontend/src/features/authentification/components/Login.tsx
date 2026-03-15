@@ -11,6 +11,10 @@ import { useGoogleAuth } from "@/features/authentification/hooks/use-google-auth
 import { validatePassword } from "@/infrastructure/validators/password.validator.ts";
 import { validateEmail } from "@/infrastructure/validators/email.validator.ts";
 
+/**
+ * @function Login
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 export default function Login() {
     const navigate = useNavigate();
 

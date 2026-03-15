@@ -3,7 +3,7 @@ import { Spinner } from "@heroui/react";
 import { useAuth } from "@/features/authentification/hooks/use-auth.hook.ts";
 
 /**
- * AuthGuard
+ * @function AuthGuard
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
 export default function AuthGuard() {

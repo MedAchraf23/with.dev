@@ -1,7 +1,6 @@
 import { Session, User } from '@supabase/supabase-js'
 
-/**
- * État de l'authentification.
+/**@interface AuthState
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
 export interface AuthState {
@@ -11,7 +10,7 @@ export interface AuthState {
 }
 
 /**
- * Contrat exposé par le contexte d'authentification.
+ * @interface AuthContextType
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
 export interface AuthContextType extends AuthState {

@@ -1,12 +1,13 @@
 import {supabase} from "@/infrastructure/api/supabase.api.ts";
-import {Session} from "@supabase/supabase-js";
+import {AuthChangeEvent, Session} from "@supabase/supabase-js";
 
 /**
+ * @interface AuthService
  * @author Arthur MATHIS <arthur.mathis@uha.fr>
  */
 const AuthService = {
 
-    async getSession(): Promise<Session | null> {
+    async getSession(): Promise<Session|null> {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
             throw error;
@@ -14,7 +15,7 @@ const AuthService = {
         return session;
     },
 
-    onAuthStateChange(callback: (event: string, session: Session | null) => void) {
+    onAuthStateChange(callback: (event: AuthChangeEvent, session: Session|null) => void) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (event, session) => callback(event, session)
         );

@@ -12,6 +12,10 @@ const styles = {
     5: ""
 };
 
+/**
+ * @fucntion Mono
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 export default function Mono({ level = 5, children, className = "" }: MonoProps) {
     const Tag = `h${level}` as keyof JSX.IntrinsicElements;
 

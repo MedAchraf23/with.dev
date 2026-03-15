@@ -1,3 +1,7 @@
+/**
+ * @function NotFoundPage
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 export default function NotFoundPage() {
     return (
         <>

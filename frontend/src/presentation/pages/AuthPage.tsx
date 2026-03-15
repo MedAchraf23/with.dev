@@ -2,6 +2,10 @@ import {Card, CardBody, CardHeader} from "@heroui/card";
 import Login from "@/features/authentification/components/Login.tsx";
 import Mono from "@/presentation/components/Mono.tsx";
 
+/**
+ * @function AuthPage
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 export default function AuthPage() {
     return (
         <section className="flex justify-center items-center h-screen w-full">
@@ -12,7 +16,7 @@ export default function AuthPage() {
                 <CardBody className="flex flex-col gap-6 w-full">
                     <Card shadow="none" className="bg-brand-50">
                         <CardBody>
-                            <p className="text-sm">Ravis de vous retoruver sur with.dev ! </p>
+                            <p className="text-sm">Ravis de vous retrouver sur with.dev ! </p>
                             <p className="text-sm">Retrouvez nos offres en vous connectant avec :</p>
                         </CardBody>
                     </Card>

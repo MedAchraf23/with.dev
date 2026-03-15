@@ -19,6 +19,9 @@ const wrapper = ({ children }: { children: ReactNode }) => (
     <AuthProvider>{children}</AuthProvider>
 );
 
+/**
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 describe('useAuth', () => {
 
     beforeEach(() => {

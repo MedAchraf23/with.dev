@@ -10,6 +10,10 @@ declare module "@react-types/shared" {
     }
 }
 
+/**
+ * @function RootLayout
+ * @author Arthur MATHIS <arthur.mathis@uha.fr>
+ */
 export default function RootLayout() {
     const navigate = useNavigate();
 
