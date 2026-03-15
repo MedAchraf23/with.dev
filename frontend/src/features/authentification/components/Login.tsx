@@ -21,7 +21,6 @@ export default function Login(): ReactNode {
 
     const form = useForm({
         onSubmit: async ({ value }: { value: { email: string, password: string } }): Promise<void> => {
-            console.log("Submit with " + value);
             setError(null);
             try {
                 await signIn(value.email, value.password);
@@ -128,9 +127,6 @@ export default function Login(): ReactNode {
                         type="submit"
                         className="text-white bg-black mt-4"
                         isLoading={isSubmitting}
-                        // onPress={async () => {
-                        //     await form.handleSubmit();
-                        // }}
                     >
                         Se connecter
                     </Button>
