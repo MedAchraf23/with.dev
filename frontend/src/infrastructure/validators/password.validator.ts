@@ -1,7 +1,3 @@
-/**
- * @function validatePassword
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 export function validatePassword(password: string): string|undefined {
     if(!password) {
         return "Mot de passe requis";

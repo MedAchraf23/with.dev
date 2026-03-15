@@ -9,7 +9,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
     );
 }
 
-/**
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

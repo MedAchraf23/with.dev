@@ -40,9 +40,6 @@ const submitForm = async () => {
     await userEvent.click(button);
 };
 
-/**
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 describe('Login Component - Unit', () => {
 
     beforeEach(() => {
@@ -137,7 +134,7 @@ describe('Login Component - Unit', () => {
             await submitForm();
 
             await waitFor(() => {
-                expect(screen.getByText('Erreur de connexion')).toBeInTheDocument();
+                expect(screen.getByText('La connexion a échoué : identifiants de connexion incorrects')).toBeInTheDocument();
             });
 
             expect(mockNavigate).not.toHaveBeenCalled();

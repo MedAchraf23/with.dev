@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import AuthProvider from '../contexts/AuthContext';
 import { useAuth } from '../hooks/use-auth.hook';
 import AuthService from '../services/auth.service';
+import {AuthChangeEvent} from "@supabase/supabase-js";
 
 vi.mock('../services/auth.service', () => ({
     default: {
@@ -19,9 +20,6 @@ const wrapper = ({ children }: { children: ReactNode }) => (
     <AuthProvider>{children}</AuthProvider>
 );
 
-/**
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 describe('useAuth', () => {
 
     beforeEach(() => {
@@ -104,7 +102,7 @@ describe('useAuth', () => {
         });
 
         it('should update state when onAuthStateChange fires', async () => {
-            let authCallback: (event: string, session: any) => void;
+            let authCallback: (event: AuthChangeEvent, session: any) => void;
             vi.mocked(AuthService.onAuthStateChange).mockImplementation((cb) => {
                 authCallback = cb;
                 return { unsubscribe: vi.fn() } as any;

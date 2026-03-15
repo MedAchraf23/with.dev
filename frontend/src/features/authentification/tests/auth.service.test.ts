@@ -16,9 +16,6 @@ vi.mock('@/infrastructure/api/supabase.api', () => ({
     },
 }));
 
-/**
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 describe('AuthService - unit', () => {
 
     beforeEach(() => vi.clearAllMocks());

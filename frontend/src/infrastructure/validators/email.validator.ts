@@ -1,7 +1,3 @@
-/**
- * @function validateEmail
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 export function validateEmail(email: string): string|undefined {
     if(!email) {
         return "Email requis";

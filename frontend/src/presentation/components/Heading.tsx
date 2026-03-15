@@ -11,10 +11,6 @@ const styles = {
     4: "text-xl font-medium",
 };
 
-/**
- * @fucntion Heading
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 export default function Heading({ level = 1, children, className = "" }: HeadingProps){
     const Tag = `h${level}` as keyof JSX.IntrinsicElements;
 

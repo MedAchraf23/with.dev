@@ -2,10 +2,6 @@ import {Card, CardBody, CardHeader} from "@heroui/card";
 import Login from "@/features/authentification/components/Login.tsx";
 import Mono from "@/presentation/components/Mono.tsx";
 
-/**
- * @function AuthPage
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 export default function AuthPage() {
     return (
         <section className="flex justify-center items-center h-screen w-full">

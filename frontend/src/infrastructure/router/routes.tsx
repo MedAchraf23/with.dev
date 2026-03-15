@@ -7,9 +7,6 @@ import NotFoundPage from "@/presentation/pages/NotFoundPage.tsx";
 import GoogleCallback from "@/features/authentification/components/GoogleCallback.tsx";
 import AuthGuard from "@/presentation/guards/AuthGuard.tsx";
 
-/**
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 export const router = createBrowserRouter([
     {
         element: <RootLayout />,
@@ -36,11 +33,11 @@ export const router = createBrowserRouter([
                         path: '/dashboard',
                         element: <Dashboard />
                     },
+                    {
+                        path: "*",
+                        element: <NotFoundPage />
+                    },
                 ]
-            },
-            {
-                path: "*",
-                element: <NotFoundPage />
             },
         ],
     },

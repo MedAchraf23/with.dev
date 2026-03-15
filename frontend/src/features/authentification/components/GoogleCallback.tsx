@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
+import {ReactNode, useEffect, useState} from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { Spinner } from "@heroui/react";
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import AuthService from "@/features/authentification/services/auth.service.ts";
 
-/**
- * @function GoogleCallback
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
-export default function GoogleCallback() {
+export default function GoogleCallback(): ReactNode {
     const navigate = useNavigate();
     const [error, setError] = useState(false);
 
@@ -20,7 +17,7 @@ export default function GoogleCallback() {
 
         const timeout = setTimeout(() => setError(true), 10000);
 
-        const subscription = AuthService.onAuthStateChange((_event, session) => {
+        const subscription = AuthService.onAuthStateChange((_event: AuthChangeEvent, session: Session|null) => {
             if (session) {
                 clearTimeout(timeout);
                 navigate("/dashboard");

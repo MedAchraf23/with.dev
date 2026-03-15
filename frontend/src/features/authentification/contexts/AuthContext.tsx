@@ -1,15 +1,11 @@
 import { createContext, useState, useEffect, ReactNode } from 'react'
 import { AuthContextType, AuthState } from '@/features/authentification/interfaces/auth.type.ts'
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import AuthService from '@/features/authentification/services/auth.service'
-import {Session} from "@supabase/supabase-js";
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * @function AuthProvider
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
-export default function AuthProvider({ children }: { children: ReactNode }) {
+export default function AuthProvider({ children }: { children: ReactNode }): ReactNode {
     const [state, setState] = useState<AuthState>({
         user: null,
         session: null,
@@ -18,30 +14,30 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         AuthService.getSession()
-            .then((session: Session|null) => {
+            .then((session: Session|null): void => {
                 setState({ user: session?.user ?? null, session, loading: false })
             })
-            .catch((error: unknown) => {
+            .catch((error: unknown): void => {
                 console.error('Failed to get session:', error);
                 setState({ user: null, session: null, loading: false });
             });
 
-        const subscription = AuthService.onAuthStateChange((_event, session) => {
+        const subscription = AuthService.onAuthStateChange((_event: AuthChangeEvent, session: Session|null) => {
             setState({ user: session?.user ?? null, session, loading: false })
         });
 
         return () => subscription.unsubscribe();
     }, []);
 
-    const signUp = async (email: string, password: string) => {
+    const signUp = async (email: string, password: string): Promise<void> => {
         await AuthService.signUp(email, password);
     }
 
-    const signIn = async (email: string, password: string) => {
+    const signIn = async (email: string, password: string): Promise<void> => {
         await AuthService.signIn(email, password);
     }
 
-    const signOut = async () => {
+    const signOut = async (): Promise<void> => {
         await AuthService.signOut();
     }
 

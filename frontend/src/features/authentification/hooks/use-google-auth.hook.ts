@@ -2,15 +2,11 @@ import { useState } from "react";
 import { addToast } from "@heroui/toast";
 import AuthService from "@/features/authentification/services/auth.service.ts";
 
-/**
- * @function useGoogleAuth
- * @author Arthur MATHIS <arthur.mathis@uha.fr>
- */
 export const useGoogleAuth = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const signInWithGoogle = async () => {
+    const signInWithGoogle = async (): Promise<void> => {
         setLoading(true);
         setError(null);
         try {
