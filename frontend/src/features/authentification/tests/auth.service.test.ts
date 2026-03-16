@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import AuthService from '../services/auth.service';
-import { supabase } from '@/infrastructure/api/supabase.api';
+import AuthService from '../services/auth.service.ts';
+import { supabase } from '@/infrastructure/api/supabase.api.ts';
 
 vi.mock('@/infrastructure/api/supabase.api', () => ({
     supabase: {

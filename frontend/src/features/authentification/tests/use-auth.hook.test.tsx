@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
-import AuthProvider from '../contexts/AuthContext';
-import { useAuth } from '../hooks/use-auth.hook';
-import AuthService from '../services/auth.service';
+import AuthProvider from '../contexts/AuthContext.tsx';
+import { useAuth } from '../hooks/use-auth.hook.ts';
+import AuthService from '../services/auth.service.ts';
 import {AuthChangeEvent} from "@supabase/supabase-js";
 
 vi.mock('../services/auth.service', () => ({

@@ -2,10 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Login from '../components/Login';
+import SignIn from '../components/SignIn.tsx';
 
 const mockSignIn = vi.fn();
-const mockSignInWithGoogle = vi.fn();
 const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async () => {
@@ -17,19 +16,15 @@ vi.mock('@/features/authentification/hooks/use-auth.hook.ts', () => ({
     useAuth: () => ({ signIn: mockSignIn }),
 }));
 
-vi.mock('@/features/authentification/hooks/use-google-auth.hook.ts', () => ({
-    useGoogleAuth: () => ({ signInWithGoogle: mockSignInWithGoogle, loading: false }),
-}));
-
 vi.mock('@heroui/toast', () => ({
     addToast: vi.fn(),
 }));
 
-const renderLogin = () => {
+const renderSignIn = () => {
     const user = userEvent.setup();
     render(
         <MemoryRouter>
-            <Login />
+            <SignIn />
         </MemoryRouter>
     );
     return { user };
@@ -40,7 +35,7 @@ const submitForm = async () => {
     await userEvent.click(button);
 };
 
-describe('Login Component - Unit', () => {
+describe('SignIn Component - Unit', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -51,7 +46,7 @@ describe('Login Component - Unit', () => {
     });
 
     it('should render the form', () => {
-        renderLogin();
+        renderSignIn();
 
         expect(screen.getAllByPlaceholderText('exemple@email.com')[0]).toBeInTheDocument();
         expect(screen.getAllByPlaceholderText('Votre mot de passe')[0]).toBeInTheDocument();
@@ -61,7 +56,7 @@ describe('Login Component - Unit', () => {
     describe('valid field', () => {
 
         it('should show email required error on submit', async () => {
-            const { user } = renderLogin();
+            const { user } = renderSignIn();
 
             await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'password123');
             await submitForm();
@@ -72,7 +67,7 @@ describe('Login Component - Unit', () => {
         });
 
         it('should show invalid email error', async () => {
-            const { user } = renderLogin();
+            const { user } = renderSignIn();
 
             const emailInput = screen.getAllByPlaceholderText('exemple@email.com')[0];
             await user.type(emailInput, 'invalid');
@@ -84,7 +79,7 @@ describe('Login Component - Unit', () => {
         });
 
         it('should show password required error on submit', async () => {
-            const { user } = renderLogin();
+            const { user } = renderSignIn();
 
             await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
             await submitForm();
@@ -95,7 +90,7 @@ describe('Login Component - Unit', () => {
         });
 
         it('should show password too short error', async () => {
-            const { user } = renderLogin();
+            const { user } = renderSignIn();
 
             const passwordInput = screen.getAllByPlaceholderText('Votre mot de passe')[0];
             await user.type(passwordInput, '123');
@@ -112,7 +107,7 @@ describe('Login Component - Unit', () => {
         it('should sign in and navigate on success', async () => {
             mockSignIn.mockResolvedValue(undefined);
             const { addToast } = await import('@heroui/toast');
-            const { user } = renderLogin();
+            const { user } = renderSignIn();
 
             await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
             await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'password123');
@@ -127,7 +122,7 @@ describe('Login Component - Unit', () => {
 
         it('should display error on sign in failure', async () => {
             mockSignIn.mockRejectedValue(new Error('fail'));
-            const { user } = renderLogin();
+            const { user } = renderSignIn();
 
             await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
             await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'password123');
@@ -138,18 +133,6 @@ describe('Login Component - Unit', () => {
             });
 
             expect(mockNavigate).not.toHaveBeenCalled();
-        });
-
-    });
-
-    describe('google authentification', () => {
-
-        it('should call signInWithGoogle on Google button click', async () => {
-            const { user } = renderLogin();
-
-            await user.click(screen.getByRole('button', { name: /google/i }));
-
-            expect(mockSignInWithGoogle).toHaveBeenCalled();
         });
 
     });
