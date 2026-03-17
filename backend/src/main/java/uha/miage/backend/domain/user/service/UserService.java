@@ -26,4 +26,22 @@ public class UserService {
 
         return user;
     }
+
+    public User getById(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+    }
+
+    public User update(UUID userId, String firstName, String lastName) {
+        User user = getById(userId);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        return userRepository.save(user);
+
+    }
+
+    public void delete(UUID userId) {
+        User user = getById(userId);
+        userRepository.delete(user);
+    }
 }

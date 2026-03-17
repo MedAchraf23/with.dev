@@ -3,6 +3,7 @@ package uha.miage.backend.domain.user.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -28,6 +29,8 @@ class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+
+    // ===== findAndValidateForOnboarding =====
 
     @Test
     @DisplayName("Retourne le user quand il existe sans rôle")
@@ -69,5 +72,90 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.findAndValidateForOnboarding(userId))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("Cet utilisateur a déjà complété son onboarding");
+    }
+
+    // ===== getById =====
+
+    @Test
+    @DisplayName("Retourne le user quand il existe")
+    void getById_quandUserExiste_alorsRetourneUser() {
+        UUID userId = UUID.randomUUID();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .create();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        User result = userService.getById(userId);
+
+        assertThat(result).isEqualTo(user);
+    }
+
+    @Test
+    @DisplayName("Lève ResourceNotFoundException quand le user n'existe pas")
+    void getById_quandUserInexistant_alorsResourceNotFoundException() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.getById(userId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Utilisateur non trouvé");
+    }
+
+    // ===== update =====
+
+    @Test
+    @DisplayName("Met à jour firstName et lastName et retourne le user modifié")
+    void update_quandUserExiste_alorsMiseAJourEtRetourneUser() {
+        UUID userId = UUID.randomUUID();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .create();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        User result = userService.update(userId, "Jean", "Dupont");
+
+        assertThat(user.getFirstName()).isEqualTo("Jean");
+        assertThat(user.getLastName()).isEqualTo("Dupont");
+        assertThat(result).isEqualTo(user);
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Lève ResourceNotFoundException quand le user n'existe pas pour update")
+    void update_quandUserInexistant_alorsResourceNotFoundException() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.update(userId, "Jean", "Dupont"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Utilisateur non trouvé");
+    }
+
+    // ===== delete =====
+
+    @Test
+    @DisplayName("Supprime le user quand il existe")
+    void delete_quandUserExiste_alorsSupprime() {
+        UUID userId = UUID.randomUUID();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .create();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.delete(userId);
+
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    @DisplayName("Lève ResourceNotFoundException quand le user n'existe pas pour delete")
+    void delete_quandUserInexistant_alorsResourceNotFoundException() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.delete(userId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Utilisateur non trouvé");
     }
 }

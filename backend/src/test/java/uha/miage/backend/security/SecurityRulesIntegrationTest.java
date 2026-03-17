@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class SecurityRulesIntegrationTest {
 
     @Autowired
@@ -44,11 +46,15 @@ class SecurityRulesIntegrationTest {
     static class DummyTestController {
         @GetMapping("/test/recruiter-only")
         @PreAuthorize("hasRole('RECRUITER')")
-        public String recruiterOnly() { return "OK"; }
+        public String recruiterOnly() {
+            return "OK";
+        }
 
         @GetMapping("/test/candidate-only")
         @PreAuthorize("hasRole('CANDIDATE')")
-        public String candidateOnly() { return "OK"; }
+        public String candidateOnly() {
+            return "OK";
+        }
 
         // La solution au 500 : on attrape l'erreur et on force un 403
         @ExceptionHandler(AccessDeniedException.class)
@@ -60,27 +66,27 @@ class SecurityRulesIntegrationTest {
     @Test
     void quandAucunToken_alorsErreur401() throws Exception {
         mockMvc.perform(get("/test/candidate-only"))
-               .andExpect(status().isUnauthorized()); 
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
     void quandCandidatVaSurRouteCandidat_alorsSucces200() throws Exception {
         mockMvc.perform(get("/test/candidate-only")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_CANDIDATE"))))
-               .andExpect(status().isOk()); 
+                .andExpect(status().isOk());
     }
 
     @Test
     void quandCandidatVaSurRouteRecruteur_alorsErreur403() throws Exception {
         mockMvc.perform(get("/test/recruiter-only")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_CANDIDATE"))))
-               .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void quandRecruteurVaSurRouteRecruteur_alorsSucces200() throws Exception {
         mockMvc.perform(get("/test/recruiter-only")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_RECRUITER"))))
-               .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 }
