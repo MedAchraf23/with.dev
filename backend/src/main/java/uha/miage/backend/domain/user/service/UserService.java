@@ -32,14 +32,15 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
     }
 
+    @Transactional
     public User update(UUID userId, String firstName, String lastName) {
         User user = getById(userId);
         user.setFirstName(firstName);
         user.setLastName(lastName);
         return userRepository.save(user);
-
     }
 
+    @Transactional
     public void delete(UUID userId) {
         User user = getById(userId);
         userRepository.delete(user);
