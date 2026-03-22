@@ -3,8 +3,8 @@ package uha.miage.backend.api.candidate;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -181,8 +181,8 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("PUT /candidates - Met à jour le candidat et retourne 200")
-    void putCandidates_quandDonneesValides_alorsMajCandidatEtRetourne200() throws Exception {
+    @DisplayName("PATCH /candidates/me - Met à jour le candidat et retourne 200")
+    void patchCandidatesMe_quandDonneesValides_alorsMajCandidatEtRetourne200() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
 
@@ -207,7 +207,7 @@ class CandidateControllerIntegrationTest {
                 "city", "Strasbourg"
         );
 
-        mockMvc.perform(put("/candidates")
+        mockMvc.perform(patch("/candidates/me")
                         .with(jwt().jwt(j -> j.subject(userId.toString())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
@@ -219,15 +219,15 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("PUT /candidates - Retourne 404 quand le candidat n'existe pas")
-    void putCandidates_quandCandidatInexistant_alorsRetourne404() throws Exception {
+    @DisplayName("PATCH /candidates/me - Retourne 404 quand le candidat n'existe pas")
+    void patchCandidatesMe_quandCandidatInexistant_alorsRetourne404() throws Exception {
         UUID userId = UUID.randomUUID();
 
         Map<String, Object> updateRequest = Map.of(
                 "phone", "0687654321"
         );
 
-        mockMvc.perform(put("/candidates")
+        mockMvc.perform(patch("/candidates/me")
                         .with(jwt().jwt(j -> j.subject(userId.toString())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
@@ -235,21 +235,21 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("PUT /candidates - Retourne 401 sans token JWT")
-    void putCandidates_quandAucunToken_alorsRetourne401() throws Exception {
+    @DisplayName("PATCH /candidates/me - Retourne 401 sans token JWT")
+    void patchCandidatesMe_quandAucunToken_alorsRetourne401() throws Exception {
         Map<String, Object> updateRequest = Map.of(
                 "phone", "0687654321"
         );
 
-        mockMvc.perform(put("/candidates")
+        mockMvc.perform(patch("/candidates/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("DELETE /candidates - Supprime le candidat et retourne 204")
-    void deleteCandidates_quandCandidatExiste_alorsSupprimeEtRetourne204() throws Exception {
+    @DisplayName("DELETE /candidates/me - Supprime le candidat et retourne 204")
+    void deleteCandidatesMe_quandCandidatExiste_alorsSupprimeEtRetourne204() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
 
@@ -271,7 +271,7 @@ class CandidateControllerIntegrationTest {
                 .andExpect(status().isOk());
 
         // Supprimer le candidat
-        mockMvc.perform(delete("/candidates")
+        mockMvc.perform(delete("/candidates/me")
                         .with(jwt().jwt(j -> j.subject(userId.toString()))))
                 .andExpect(status().isNoContent());
 
@@ -282,19 +282,19 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("DELETE /candidates - Retourne 404 quand le candidat n'existe pas")
-    void deleteCandidates_quandCandidatInexistant_alorsRetourne404() throws Exception {
+    @DisplayName("DELETE /candidates/me - Retourne 404 quand le candidat n'existe pas")
+    void deleteCandidatesMe_quandCandidatInexistant_alorsRetourne404() throws Exception {
         UUID userId = UUID.randomUUID();
 
-        mockMvc.perform(delete("/candidates")
+        mockMvc.perform(delete("/candidates/me")
                         .with(jwt().jwt(j -> j.subject(userId.toString()))))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("DELETE /candidates - Retourne 401 sans token JWT")
-    void deleteCandidates_quandAucunToken_alorsRetourne401() throws Exception {
-        mockMvc.perform(delete("/candidates"))
+    @DisplayName("DELETE /candidates/me - Retourne 401 sans token JWT")
+    void deleteCandidatesMe_quandAucunToken_alorsRetourne401() throws Exception {
+        mockMvc.perform(delete("/candidates/me"))
                 .andExpect(status().isUnauthorized());
     }
 }

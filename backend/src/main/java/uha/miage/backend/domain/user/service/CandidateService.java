@@ -4,6 +4,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uha.miage.backend.api.candidate.CandidateMapper;
+import uha.miage.backend.api.candidate.UpdateCandidateRequest;
 import uha.miage.backend.core.exception.BadRequestException;
 import uha.miage.backend.core.exception.ResourceNotFoundException;
 import uha.miage.backend.domain.user.entity.Candidate;
@@ -18,6 +20,7 @@ public class CandidateService {
 
     private final CandidateRepository candidateRepository;
     private final UserService userService;
+    private final CandidateMapper candidateMapper;
 
     @Transactional
     public Candidate create(Candidate candidate, UUID userId, String firstName, String lastName) {
@@ -41,9 +44,21 @@ public class CandidateService {
     }
 
     @Transactional
-    public Candidate update(Candidate candidate) {
-        // Le candidat a déjà été mis à jour par le mapper (via @MappingTarget)
-        // Il suffit de le sauvegarder avec les modifications
+    public Candidate update(UUID userId, UpdateCandidateRequest request) {
+        Candidate candidate = getByUserId(userId);
+        
+        candidateMapper.updateCandidateFromRequest(request, candidate);
+        
+        if (request.firstName() != null || request.lastName() != null) {
+            User user = candidate.getUser();
+            if (request.firstName() != null) {
+                user.setFirstName(request.firstName());
+            }
+            if (request.lastName() != null) {
+                user.setLastName(request.lastName());
+            }
+        }
+        
         return candidateRepository.save(candidate);
     }
 
