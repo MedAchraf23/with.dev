@@ -2,9 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
 import AuthProvider from '../contexts/AuthContext.tsx';
-import { useAuth } from '../hooks/use-auth.hook.ts';
+import { useAuth } from './use-auth.hook.ts';
 import AuthService from '../services/auth.service.ts';
-import {AuthChangeEvent} from "@supabase/supabase-js";
+import { AuthChangeEvent } from "@supabase/supabase-js";
+import { AuthContextType } from "@/features/authentification/interfaces/auth.type.ts";
 
 vi.mock('../services/auth.service', () => ({
     default: {
@@ -20,17 +21,17 @@ const wrapper = ({ children }: { children: ReactNode }) => (
     <AuthProvider>{children}</AuthProvider>
 );
 
-describe('useAuth', () => {
+describe('useAuth - Unit', (): void => {
 
-    beforeEach(() => {
+    beforeEach((): void => {
         vi.clearAllMocks();
         vi.mocked(AuthService.getSession).mockResolvedValue(null);
         vi.mocked(AuthService.onAuthStateChange).mockReturnValue({ unsubscribe: vi.fn() } as any);
     });
 
-    describe('start context', () => {
+    describe('start context', (): void => {
 
-        it('should start in loading then switch to false', async () => {
+        it('should start in loading then switch to false', async (): Promise<void> => {
             const { result } = renderHook(() => useAuth(), { wrapper });
 
             expect(result.current.loading).toBe(true);
@@ -42,7 +43,7 @@ describe('useAuth', () => {
             expect(result.current.user).toBeNull();
         });
 
-        it('should throw if is called outside AuthProvider', () => {
+        it('should throw if is called outside AuthProvider', (): void => {
             const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
             expect(() => {
@@ -54,11 +55,11 @@ describe('useAuth', () => {
 
     });
 
-    describe('call AuthService', () => {
+    describe('call AuthService', (): void => {
 
-        it('should call AuthService::signIn', async () => {
+        it('should call AuthService::signIn', async (): Promise<void> => {
             vi.mocked(AuthService.signIn).mockResolvedValue(undefined);
-            const { result } = renderHook(() => useAuth(), { wrapper });
+            const { result } = renderHook((): AuthContextType => useAuth(), { wrapper });
 
             await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -67,9 +68,9 @@ describe('useAuth', () => {
             expect(AuthService.signIn).toHaveBeenCalledWith('test@mail.com', 'pass');
         });
 
-        it('should call AuthService::signUp', async () => {
+        it('should call AuthService::signUp', async (): Promise<void> => {
             vi.mocked(AuthService.signUp).mockResolvedValue(undefined);
-            const { result } = renderHook(() => useAuth(), { wrapper });
+            const { result } = renderHook((): AuthContextType => useAuth(), { wrapper });
 
             await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -78,9 +79,9 @@ describe('useAuth', () => {
             expect(AuthService.signUp).toHaveBeenCalledWith('new@mail.com', 'pass');
         });
 
-        it('should call AuthService::signOut', async () => {
+        it('should call AuthService::signOut', async (): Promise<void> => {
             vi.mocked(AuthService.signOut).mockResolvedValue(undefined);
-            const { result } = renderHook(() => useAuth(), { wrapper });
+            const { result } = renderHook((): AuthContextType => useAuth(), { wrapper });
 
             await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -89,11 +90,11 @@ describe('useAuth', () => {
             expect(AuthService.signOut).toHaveBeenCalled();
         });
 
-        it('should restore session on mount', async () => {
+        it('should restore session on mount', async (): Promise<void> => {
             const fakeSession = { access_token: 'abc', user: { id: '1', email: 'test@mail.com' } };
             vi.mocked(AuthService.getSession).mockResolvedValue(fakeSession as any);
 
-            const { result } = renderHook(() => useAuth(), { wrapper });
+            const { result } = renderHook((): AuthContextType => useAuth(), { wrapper });
 
             await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -101,14 +102,14 @@ describe('useAuth', () => {
             expect(result.current.user).toEqual(fakeSession.user);
         });
 
-        it('should update state when onAuthStateChange fires', async () => {
+        it('should update state when onAuthStateChange fires', async (): Promise<void> => {
             let authCallback: (event: AuthChangeEvent, session: any) => void;
             vi.mocked(AuthService.onAuthStateChange).mockImplementation((cb) => {
                 authCallback = cb;
                 return { unsubscribe: vi.fn() } as any;
             });
 
-            const { result } = renderHook(() => useAuth(), { wrapper });
+            const { result } = renderHook((): AuthContextType => useAuth(), { wrapper });
 
             await waitFor(() => expect(result.current.loading).toBe(false));
 

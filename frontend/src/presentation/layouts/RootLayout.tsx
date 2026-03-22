@@ -1,8 +1,9 @@
-import { HeroUIProvider } from "@heroui/system";
+import { ReactNode } from "react";
 import { Outlet, useHref, useNavigate } from "react-router-dom";
 import type { NavigateOptions } from "react-router-dom";
-import AuthContext from "@/features/authentification/contexts/AuthContext.tsx";
+import { HeroUIProvider } from "@heroui/system";
 import { ToastProvider } from "@heroui/toast";
+import AuthContext from "@/features/authentification/contexts/AuthContext.tsx";
 
 declare module "@react-types/shared" {
     interface RouterConfig {
@@ -10,7 +11,7 @@ declare module "@react-types/shared" {
     }
 }
 
-export default function RootLayout() {
+export default function RootLayout(): ReactNode {
     const navigate = useNavigate();
 
     return (
