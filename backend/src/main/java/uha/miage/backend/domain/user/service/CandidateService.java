@@ -39,4 +39,17 @@ public class CandidateService {
         return candidateRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Profil candidat non trouvé"));
     }
+
+    @Transactional
+    public Candidate update(Candidate candidate) {
+        // Le candidat a déjà été mis à jour par le mapper (via @MappingTarget)
+        // Il suffit de le sauvegarder avec les modifications
+        return candidateRepository.save(candidate);
+    }
+
+    @Transactional
+    public void delete(UUID userId) {
+        Candidate candidate = getByUserId(userId);
+        candidateRepository.delete(candidate);
+    }
 }

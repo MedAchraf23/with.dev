@@ -2,9 +2,11 @@ package uha.miage.backend.api.candidate;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import uha.miage.backend.domain.user.entity.Candidate;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CandidateMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -13,6 +15,12 @@ public interface CandidateMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Candidate toEntity(CreateCandidateRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateCandidateFromRequest(UpdateCandidateRequest request, @MappingTarget Candidate candidate);
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "user.firstName", target = "firstName")

@@ -5,13 +5,16 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uha.miage.backend.domain.user.entity.Candidate;
+import uha.miage.backend.domain.user.entity.User;
 import uha.miage.backend.domain.user.service.CandidateService;
 
 @RestController
@@ -38,5 +41,38 @@ public class CandidateController {
         UUID userId = UUID.fromString(token.getToken().getSubject());
         Candidate candidate = candidateService.getByUserId(userId);
         return candidateMapper.toResponse(candidate);
+    }
+
+    @PutMapping
+    public CandidateResponse update(
+        JwtAuthenticationToken token,
+        @Valid @RequestBody UpdateCandidateRequest request
+    ) {
+        UUID userId = UUID.fromString(token.getToken().getSubject());
+        Candidate candidate = candidateService.getByUserId(userId);
+        
+        // Mapper les champs et mettre à jour le candidat
+        candidateMapper.updateCandidateFromRequest(request, candidate);
+        
+        // Si firstName ou lastName sont présents, mettre à jour l'utilisateur
+        if (request.firstName() != null || request.lastName() != null) {
+            User user = candidate.getUser();
+            if (request.firstName() != null) {
+                user.setFirstName(request.firstName());
+            }
+            if (request.lastName() != null) {
+                user.setLastName(request.lastName());
+            }
+        }
+        
+        Candidate updated = candidateService.update(candidate);
+        return candidateMapper.toResponse(updated);
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(JwtAuthenticationToken token) {
+        UUID userId = UUID.fromString(token.getToken().getSubject());
+        candidateService.delete(userId);
     }
 }
