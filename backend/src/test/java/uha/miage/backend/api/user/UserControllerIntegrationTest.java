@@ -2,6 +2,7 @@ package uha.miage.backend.api.user;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,4 +63,49 @@ class UserControllerIntegrationTest {
         mockMvc.perform(get("/users/me"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @DisplayName("POST /users/archived - Archive le user et retourne 204")
+    void postArchived_quandUserAuthentifie_alorsRetourne204() throws Exception {
+        UUID userId = UUID.randomUUID();
+        userRepository.save(User.builder()
+                .id(userId)
+                .email("user@test.com")
+                .isActive(true)
+                .build());
+
+        mockMvc.perform(post("/users/archived")
+                .with(jwt().jwt(j -> j.subject(userId.toString()))))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("POST /users/unarchived - Réactive le user et retourne 204")
+    void postUnarchived_quandUserAuthentifie_alorsRetourne204() throws Exception {
+        UUID userId = UUID.randomUUID();
+        userRepository.save(User.builder()
+                .id(userId)
+                .email("user@test.com")
+                .isActive(false)
+                .build());
+
+        mockMvc.perform(post("/users/unarchived")
+                .with(jwt().jwt(j -> j.subject(userId.toString()))))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("POST /users/archived - Retourne 401 sans token JWT")
+    void postArchived_quandAucunToken_alorsRetourne401() throws Exception {
+        mockMvc.perform(post("/users/archived"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /users/unarchived - Retourne 401 sans token JWT")
+    void postUnarchived_quandAucunToken_alorsRetourne401() throws Exception {
+        mockMvc.perform(post("/users/unarchived"))
+                .andExpect(status().isUnauthorized());
+    }
+
 }

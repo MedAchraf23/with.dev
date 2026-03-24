@@ -45,4 +45,18 @@ public class UserService {
         User user = getById(userId);
         userRepository.delete(user);
     }
+
+    @Transactional
+    public void archiveUser(UUID userId) {
+        User user = getById(userId);
+        user.setIsActive(false);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void unarchiveUser(UUID userId) {
+        User user = getById(userId);
+        user.setIsActive(true);
+        userRepository.save(user);
+    }
 }

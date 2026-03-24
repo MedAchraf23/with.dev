@@ -158,4 +158,65 @@ class UserServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Utilisateur non trouvé");
     }
+
+        // ===== archiveUser =====
+
+    @Test
+    @DisplayName("Archive le user quand il existe")
+    void archiveUser_quandUserExiste_alorsDesactiveUser() {
+        UUID userId = UUID.randomUUID();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .set(field(User::getIsActive), true)
+                .create();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        userService.archiveUser(userId);
+
+        assertThat(user.getIsActive()).isFalse();
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Lève ResourceNotFoundException quand le user n'existe pas pour archiveUser")
+    void archiveUser_quandUserInexistant_alorsResourceNotFoundException() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.archiveUser(userId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Utilisateur non trouvé");
+    }
+
+    // ===== unarchiveUser =====
+
+    @Test
+    @DisplayName("Réactive le user quand il existe")
+    void unarchiveUser_quandUserExiste_alorsReactiveUser() {
+        UUID userId = UUID.randomUUID();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .set(field(User::getIsActive), false)
+                .create();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        userService.unarchiveUser(userId);
+
+        assertThat(user.getIsActive()).isTrue();
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Lève ResourceNotFoundException quand le user n'existe pas pour unarchiveUser")
+    void unarchiveUser_quandUserInexistant_alorsResourceNotFoundException() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.unarchiveUser(userId))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Utilisateur non trouvé");
+    }
+
 }
