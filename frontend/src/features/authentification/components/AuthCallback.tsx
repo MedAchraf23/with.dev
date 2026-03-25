@@ -15,8 +15,11 @@ export default function AuthCallback(): ReactNode {
     useEffect(() => {
         const hash = window.location.hash;
         if (hash.includes("error")) {
-            setError("Une erreur est survenue. Veuillez réessayer.");
-            return;
+            const hashParams = new URLSearchParams(hash.substring(1));
+            if (hashParams.has("error")) {
+                setError("Une erreur est survenue. Veuillez réessayer.");
+                return;
+            }
         }
 
         const tokenHash = searchParams.get("token_hash");
@@ -40,6 +43,12 @@ export default function AuthCallback(): ReactNode {
                 clearTimeout(timeout);
                 subscription.unsubscribe();
             };
+        }
+
+        const validOtpTypes: OtpType[] = Object.values(OtpType);
+        if (!validOtpTypes.includes(type as OtpType)) {
+            setError("Lien de vérification invalide.");
+            return;
         }
 
         AuthService.verifyOtp(tokenHash, type as OtpType)

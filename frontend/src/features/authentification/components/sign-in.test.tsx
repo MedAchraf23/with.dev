@@ -48,8 +48,8 @@ describe('SignIn Component - Unit', (): void => {
     it('should render the form', (): void => {
         renderSignIn();
 
-        expect(screen.getAllByPlaceholderText('exemple@email.com')[0]).toBeInTheDocument();
-        expect(screen.getAllByPlaceholderText('Votre mot de passe')[0]).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('exemple@email.com')).toBeInTheDocument();
+        expect(screen.getByPlaceholderText('Votre mot de passe')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /se connecter/i })).toBeInTheDocument();
     });
 
@@ -58,7 +58,7 @@ describe('SignIn Component - Unit', (): void => {
         it('should show email required error on submit', async (): Promise<void> => {
             const { user } = renderSignIn();
 
-            await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'Password_123!');
+            await user.type(screen.getByPlaceholderText('Votre mot de passe'), 'Password_123!');
             await submitForm();
 
             await waitFor((): void => {
@@ -69,7 +69,7 @@ describe('SignIn Component - Unit', (): void => {
         it('should show invalid email error', async (): Promise<void> => {
             const { user } = renderSignIn();
 
-            const emailInput = screen.getAllByPlaceholderText('exemple@email.com')[0];
+            const emailInput = screen.getByPlaceholderText('exemple@email.com');
             await user.type(emailInput, 'invalid');
             await user.tab();
 
@@ -81,7 +81,7 @@ describe('SignIn Component - Unit', (): void => {
         it('should show password required error on submit', async (): Promise<void> => {
             const { user } = renderSignIn();
 
-            await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
+            await user.type(screen.getByPlaceholderText('exemple@email.com'), 'test@mail.com');
             await submitForm();
 
             await waitFor(() => {
@@ -92,7 +92,7 @@ describe('SignIn Component - Unit', (): void => {
         it('should show password too short error', async (): Promise<void> => {
             const { user } = renderSignIn();
 
-            const passwordInput = screen.getAllByPlaceholderText('Votre mot de passe')[0];
+            const passwordInput = screen.getByPlaceholderText('Votre mot de passe');
             await user.type(passwordInput, '123');
 
             await waitFor(() => {
@@ -109,8 +109,8 @@ describe('SignIn Component - Unit', (): void => {
             const { addToast } = await import('@heroui/toast');
             const { user } = renderSignIn();
 
-            await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
-            await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'Password_123!');
+            await user.type(screen.getByPlaceholderText('exemple@email.com'), 'test@mail.com');
+            await user.type(screen.getByPlaceholderText('Votre mot de passe'), 'Password_123!');
             await submitForm();
 
             await waitFor(() => {
@@ -124,8 +124,8 @@ describe('SignIn Component - Unit', (): void => {
             mockSignIn.mockRejectedValue(new Error('fail'));
             const { user } = renderSignIn();
 
-            await user.type(screen.getAllByPlaceholderText('exemple@email.com')[0], 'test@mail.com');
-            await user.type(screen.getAllByPlaceholderText('Votre mot de passe')[0], 'Password_123!');
+            await user.type(screen.getByPlaceholderText('exemple@email.com'), 'test@mail.com');
+            await user.type(screen.getByPlaceholderText('Votre mot de passe'), 'Password_123!');
             await submitForm();
 
             await waitFor(() => {

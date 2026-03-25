@@ -32,7 +32,6 @@ export default function SignUp(): ReactNode {
                     replace: true,
                 });
             } catch (err: any) {
-                console.error(err);
                 setError("L'inscription a échoué...");
             }
         },
@@ -90,12 +89,17 @@ export default function SignUp(): ReactNode {
                 {(field) => <PasswordField field={field} isConfirmation />}
             </form.Field>
 
-            <Button
-                type="submit"
-                className="text-white bg-black mt-4"
-            >
-                S'inscrire
-            </Button>
+            <form.Subscribe selector={(state) => state.isSubmitting}>
+                {(isSubmitting): ReactNode => (
+                    <Button
+                        type="submit"
+                        className="text-white bg-black mt-4"
+                        isLoading={isSubmitting}
+                    >
+                        S'inscrire
+                    </Button>
+                )}
+            </form.Subscribe>
         </form>
     );
 }

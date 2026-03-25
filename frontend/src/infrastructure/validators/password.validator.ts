@@ -11,6 +11,9 @@ export function validatePassword(password: string): string | undefined {
     if (!/[a-z]/.test(password)) {
         return "Une minuscule requise";
     }
+    if (!/[0-9]/.test(password)) {
+        return "Un chiffre requis";
+    }
     if (!/[^a-zA-Z0-9]/.test(password)) {
         return "Un caractère spécial requis";
     }

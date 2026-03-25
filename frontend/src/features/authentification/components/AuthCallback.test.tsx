@@ -34,7 +34,7 @@ function renderWithUrl(url: string) {
 }
 
 
-describe('AutCallback - Integration', (): void => {
+describe('AuthCallback - Integration', (): void => {
 
     beforeEach((): void => {
         vi.clearAllMocks();

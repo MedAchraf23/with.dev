@@ -1,10 +1,9 @@
 import { ReactNode } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { Button } from "@heroui/button";
 
 export default function ConfirmEmailPage(): ReactNode {
     const location = useLocation();
-    const navigate = useNavigate();
     const email = location.state?.email;
 
     if (!email) {
@@ -21,8 +20,9 @@ export default function ConfirmEmailPage(): ReactNode {
                 Cliquez sur le lien dans l'email pour activer votre compte.
             </p>
             <Button
+                as="a"
+                href="/auth"
                 variant="light"
-                onPress={() => navigate("/auth", { replace: true })}
             >
                 Retour à la connexion
             </Button>

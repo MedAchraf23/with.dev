@@ -6,7 +6,9 @@ describe("validateEmail - Unit", (): void => {
 
     it.each([
         'react@test.dev',
-        'arthur.mathis@uha.fr'
+        'arthur.mathis@uha.fr',
+        'dav1d_leGB@uha.fr',
+        '1=32%krjg.s@uha.fr'
     ])('should validate - %s', (email: string): void => {
         expect(validateEmail(email)).toBeUndefined();
     });
@@ -18,7 +20,9 @@ describe("validateEmail - Unit", (): void => {
         'bonjour@.com',
         'bonjour@.com.fr',
         'bonjour@.',
-        '2'
+        '1=32%krjg.s@uha.86',
+        '2',
+        ' '
     ])(`should reject - %s`, (email: string): void => {
         const result = validateEmail(email);
 

@@ -6,7 +6,7 @@ import SignIn from "@/features/authentification/components/SignIn.tsx";
 import SignUp from "@/features/authentification/components/SignUp.tsx";
 
 export function AuthPage() {
-    const [selectedTab, setSelectedTab] = useState("login");
+    const [selectedTab, setSelectedTab] = useState("signin");
 
     return (
         <section className="flex justify-center items-center h-screen w-full">
@@ -22,7 +22,7 @@ export function AuthPage() {
                         size="md"
                         onSelectionChange={(key: React.Key): void => setSelectedTab(String(key))}
                     >
-                        <Tab key="login" title="Se connecter">
+                        <Tab key="signin" title="Se connecter">
                             <div className="flex flex-col gap-6">
                                 <Card shadow="none" className="bg-brand-50">
                                     <CardBody>

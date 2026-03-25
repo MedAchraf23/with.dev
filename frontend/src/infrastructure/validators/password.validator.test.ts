@@ -3,6 +3,11 @@ import {validatePassword} from "@/infrastructure/validators/password.validator.t
 
 describe('validatePassword - Unit', (): void => {
 
+    it('should reject empty password', (): void => {
+        expect(validatePassword(''))
+            .toBe('Mot de passe requis');
+    });
+
     it('should reject too short password', (): void => {
         expect(validatePassword('1234567890'))
             .toBe('12 caractères minimum');
@@ -16,6 +21,11 @@ describe('validatePassword - Unit', (): void => {
     it('should reject password without lowercase', (): void => {
         expect(validatePassword('1234567890ABC'))
             .toBe('Une minuscule requise');
+    });
+
+    it('should reject password without digit', (): void => {
+        expect(validatePassword('AbcdefghijklM!'))
+            .toBe('Un chiffre requis');
     });
 
     it('should reject password without special character', (): void => {

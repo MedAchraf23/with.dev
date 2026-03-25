@@ -1,9 +1,6 @@
-import { validatePassword } from "@/infrastructure/validators/password.validator.ts";
-
 export function validatePasswordConfirmation(confirmation: string, password: string): string|undefined {
-    const base = validatePassword(confirmation);
-    if(base) {
-        return base;
+    if (!confirmation) {
+        return "Confirmation requise";
     }
 
     if(password !== confirmation) {
