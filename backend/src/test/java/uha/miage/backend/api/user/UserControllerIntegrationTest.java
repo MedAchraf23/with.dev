@@ -1,11 +1,13 @@
 package uha.miage.backend.api.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,88 +26,97 @@ import uha.miage.backend.domain.user.repository.UserRepository;
 @Transactional
 class UserControllerIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Test
-    @DisplayName("GET /users/me - Retourne le user connecté")
-    void getUsersMe_quandUserExiste_alorsRetourne200() throws Exception {
-        UUID userId = UUID.randomUUID();
-        userRepository.save(User.builder()
-                .id(userId)
-                .email("user@test.com")
-                .isActive(true)
-                .build());
+        @Test
+        @DisplayName("GET /users/me - Retourne le user connecté")
+        void getUsersMe_quandUserExiste_alorsRetourne200() throws Exception {
+                UUID userId = UUID.randomUUID();
+                userRepository.save(User.builder()
+                                .id(userId)
+                                .email("user@test.com")
+                                .isActive(true)
+                                .build());
 
-        mockMvc.perform(get("/users/me")
-                .with(jwt().jwt(j -> j.subject(userId.toString()))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId.toString()))
-                .andExpect(jsonPath("$.email").value("user@test.com"));
-    }
+                mockMvc.perform(get("/users/me")
+                                .with(jwt().jwt(j -> j.subject(userId.toString()))))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(userId.toString()))
+                                .andExpect(jsonPath("$.email").value("user@test.com"));
+        }
 
-    @Test
-    @DisplayName("GET /users/me - Retourne 404 quand le user n'existe pas")
-    void getUsersMe_quandUserInexistant_alorsRetourne404() throws Exception {
-        UUID userId = UUID.randomUUID();
+        @Test
+        @DisplayName("GET /users/me - Retourne 404 quand le user n'existe pas")
+        void getUsersMe_quandUserInexistant_alorsRetourne404() throws Exception {
+                UUID userId = UUID.randomUUID();
 
-        mockMvc.perform(get("/users/me")
-                .with(jwt().jwt(j -> j.subject(userId.toString()))))
-                .andExpect(status().isNotFound());
-    }
+                mockMvc.perform(get("/users/me")
+                                .with(jwt().jwt(j -> j.subject(userId.toString()))))
+                                .andExpect(status().isNotFound());
+        }
 
-    @Test
-    @DisplayName("GET /users/me - Retourne 401 sans token JWT")
-    void getUsersMe_quandAucunToken_alorsRetourne401() throws Exception {
-        mockMvc.perform(get("/users/me"))
-                .andExpect(status().isUnauthorized());
-    }
+        @Test
+        @DisplayName("GET /users/me - Retourne 401 sans token JWT")
+        void getUsersMe_quandAucunToken_alorsRetourne401() throws Exception {
+                mockMvc.perform(get("/users/me"))
+                                .andExpect(status().isUnauthorized());
+        }
 
-    @Test
-    @DisplayName("POST /users/archived - Archive le user et retourne 204")
-    void postArchived_quandUserAuthentifie_alorsRetourne204() throws Exception {
-        UUID userId = UUID.randomUUID();
-        userRepository.save(User.builder()
-                .id(userId)
-                .email("user@test.com")
-                .isActive(true)
-                .build());
+        @Test
+        @DisplayName("PATCH /users/archive - Archive le user et retourne 204")
+        void patchArchive_quandUserAuthentifie_alorsRetourne204() throws Exception {
+                UUID userId = UUID.randomUUID();
+                userRepository.save(User.builder()
+                                .id(userId)
+                                .email("user@test.com")
+                                .isActive(true)
+                                .build());
 
-        mockMvc.perform(post("/users/archived")
-                .with(jwt().jwt(j -> j.subject(userId.toString()))))
-                .andExpect(status().isNoContent());
-    }
+                mockMvc.perform(patch("/users/archive")
+                                .with(jwt().jwt(j -> j.subject(userId.toString()))))
+                                .andExpect(status().isNoContent());
 
-    @Test
-    @DisplayName("POST /users/unarchived - Réactive le user et retourne 204")
-    void postUnarchived_quandUserAuthentifie_alorsRetourne204() throws Exception {
-        UUID userId = UUID.randomUUID();
-        userRepository.save(User.builder()
-                .id(userId)
-                .email("user@test.com")
-                .isActive(false)
-                .build());
+                User updated = userRepository.findById(userId).orElseThrow();
+                assertThat(updated.getIsActive()).isFalse();
+                assertThat(updated.getDeletedAt()).isNotNull();
+        }
 
-        mockMvc.perform(post("/users/unarchived")
-                .with(jwt().jwt(j -> j.subject(userId.toString()))))
-                .andExpect(status().isNoContent());
-    }
+        @Test
+        @DisplayName("PATCH /users/unarchive - Réactive le user et retourne 204")
+        void patchUnarchive_quandUserAuthentifie_alorsRetourne204() throws Exception {
+                UUID userId = UUID.randomUUID();
+                userRepository.save(User.builder()
+                                .id(userId)
+                                .email("user@test.com")
+                                .isActive(false)
+                                .deletedAt(Instant.now())
+                                .build());
 
-    @Test
-    @DisplayName("POST /users/archived - Retourne 401 sans token JWT")
-    void postArchived_quandAucunToken_alorsRetourne401() throws Exception {
-        mockMvc.perform(post("/users/archived"))
-                .andExpect(status().isUnauthorized());
-    }
+                mockMvc.perform(patch("/users/unarchive")
+                                .with(jwt().jwt(j -> j.subject(userId.toString()))))
+                                .andExpect(status().isNoContent());
 
-    @Test
-    @DisplayName("POST /users/unarchived - Retourne 401 sans token JWT")
-    void postUnarchived_quandAucunToken_alorsRetourne401() throws Exception {
-        mockMvc.perform(post("/users/unarchived"))
-                .andExpect(status().isUnauthorized());
-    }
+                User updated = userRepository.findById(userId).orElseThrow();
+                assertThat(updated.getIsActive()).isTrue();
+                assertThat(updated.getDeletedAt()).isNull();
+        }
+
+        @Test
+        @DisplayName("PATCH /users/archive - Retourne 401 sans token JWT")
+        void patchArchive_quandAucunToken_alorsRetourne401() throws Exception {
+                mockMvc.perform(patch("/users/archive"))
+                                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("PATCH /users/unarchive - Retourne 401 sans token JWT")
+        void patchUnarchive_quandAucunToken_alorsRetourne401() throws Exception {
+                mockMvc.perform(patch("/users/unarchive"))
+                                .andExpect(status().isUnauthorized());
+        }
 
 }

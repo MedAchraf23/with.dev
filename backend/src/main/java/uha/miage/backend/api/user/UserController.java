@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,14 +29,14 @@ public class UserController {
         return userMapper.toResponse(user);
     }
 
-    @PostMapping("/archived")
+    @PatchMapping("/archive")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void archiveUser(JwtAuthenticationToken token) {
         UUID userId = UUID.fromString(token.getToken().getSubject());
         userService.archiveUser(userId);
     }
 
-    @PostMapping("/unarchived")
+    @PatchMapping("/unarchive")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unarchiveUser(JwtAuthenticationToken token) {
         UUID userId = UUID.fromString(token.getToken().getSubject());

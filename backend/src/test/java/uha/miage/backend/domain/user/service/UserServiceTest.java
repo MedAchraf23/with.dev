@@ -159,7 +159,7 @@ class UserServiceTest {
                 .hasMessage("Utilisateur non trouvé");
     }
 
-        // ===== archiveUser =====
+    // ===== archiveUser =====
 
     @Test
     @DisplayName("Archive le user quand il existe")
@@ -170,12 +170,25 @@ class UserServiceTest {
                 .set(field(User::getIsActive), true)
                 .create();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
 
         userService.archiveUser(userId);
 
         assertThat(user.getIsActive()).isFalse();
-        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Lève BadRequestException quand le user est déjà archivé pour archiveUser")
+    void archiveUser_quandUserDejaArchive_alorsBadRequestException() {
+        UUID userId = UUID.randomUUID();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .set(field(User::getIsActive), false)
+                .create();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> userService.archiveUser(userId))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Cet utilisateur est déjà archivé");
     }
 
     @Test
@@ -200,12 +213,25 @@ class UserServiceTest {
                 .set(field(User::getIsActive), false)
                 .create();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
 
         userService.unarchiveUser(userId);
 
         assertThat(user.getIsActive()).isTrue();
-        verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("Lève BadRequestException quand le user est déjà actif pour unarchiveUser")
+    void unarchiveUser_quandUserDejaActif_alorsBadRequestException() {
+        UUID userId = UUID.randomUUID();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .set(field(User::getIsActive), true)
+                .create();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> userService.unarchiveUser(userId))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Cet utilisateur est déjà actif");
     }
 
     @Test
