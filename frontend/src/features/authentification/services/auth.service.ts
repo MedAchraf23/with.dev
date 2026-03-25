@@ -1,5 +1,6 @@
-import {supabase} from "@/infrastructure/api/supabase.api.ts";
-import {AuthChangeEvent, Session, Subscription} from "@supabase/supabase-js";
+import { supabase } from "@/infrastructure/api/supabase.api.ts";
+import { AuthChangeEvent, Session, Subscription } from "@supabase/supabase-js";
+import {OtpType} from "@/features/authentification/interfaces/otp.type.ts";
 
 const AuthService = {
 
@@ -16,6 +17,16 @@ const AuthService = {
             (event: AuthChangeEvent, session: Session|null): void => callback(event, session)
         );
         return subscription;
+    },
+
+    async verifyOtp(tokenHash: string, type: OtpType): Promise<void> {
+        const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type,
+        });
+        if (error) {
+            throw error;
+        }
     },
 
     async signUp(email: string, password: string): Promise<void> {

@@ -2,13 +2,14 @@ import { useState } from "react";
 import { addToast } from "@heroui/toast";
 import AuthService from "@/features/authentification/services/auth.service.ts";
 
-export const useGoogleAuth = () => {
+export function useGoogleAuth(){
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const signInWithGoogle = async (): Promise<void> => {
         setLoading(true);
         setError(null);
+
         try {
             await AuthService.signInWithGoogle();
         } catch (err: unknown) {
@@ -19,6 +20,7 @@ export const useGoogleAuth = () => {
                 description: message,
                 color: "danger",
             });
+
         } finally {
             setLoading(false);
         }

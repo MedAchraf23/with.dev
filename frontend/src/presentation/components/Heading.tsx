@@ -1,6 +1,8 @@
+import { ReactNode } from "react";
+
 interface HeadingProps {
     level?: 1 | 2 | 3 | 4;
-    children: React.ReactNode;
+    children: ReactNode;
     className?: string;
 }
 
@@ -11,7 +13,7 @@ const styles = {
     4: "text-xl font-medium",
 };
 
-export default function Heading({ level = 1, children, className = "" }: HeadingProps){
+export default function Heading({ level = 1, children, className = "" }: HeadingProps): ReactNode {
     const Tag = `h${level}` as keyof JSX.IntrinsicElements;
 
     return (
