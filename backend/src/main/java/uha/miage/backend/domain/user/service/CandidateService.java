@@ -4,14 +4,13 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uha.miage.backend.api.candidate.CandidateMapper;
-import uha.miage.backend.api.candidate.UpdateCandidateRequest;
 import uha.miage.backend.core.exception.BadRequestException;
 import uha.miage.backend.core.exception.ResourceNotFoundException;
 import uha.miage.backend.domain.user.entity.Candidate;
 import uha.miage.backend.domain.user.entity.User;
 import uha.miage.backend.domain.user.enums.UserRole;
 import uha.miage.backend.domain.user.repository.CandidateRepository;
+import uha.miage.backend.domain.common.UpdateUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +19,6 @@ public class CandidateService {
 
     private final CandidateRepository candidateRepository;
     private final UserService userService;
-    private final CandidateMapper candidateMapper;
 
     @Transactional
     public Candidate create(Candidate candidate, UUID userId, String firstName, String lastName) {
@@ -44,22 +42,35 @@ public class CandidateService {
     }
 
     @Transactional
-    public Candidate update(UUID userId, UpdateCandidateRequest request) {
-        Candidate candidate = getByUserId(userId);
+    public Candidate update(UUID userId, Candidate partialUpdates, String firstName, String lastName) {
         
-        candidateMapper.updateCandidateFromRequest(request, candidate);
-        
-        if (request.firstName() != null || request.lastName() != null) {
-            User user = candidate.getUser();
-            if (request.firstName() != null) {
-                user.setFirstName(request.firstName());
-            }
-            if (request.lastName() != null) {
-                user.setLastName(request.lastName());
-            }
-        }
-        
-        return candidateRepository.save(candidate);
+        Candidate existing = getByUserId(userId);
+        User user = existing.getUser();
+
+        UpdateUtils.setIfNotNull(firstName, user::setFirstName);
+        UpdateUtils.setIfNotNull(lastName, user::setLastName);
+
+        UpdateUtils.setIfNotNull(partialUpdates.getHeadline(), existing::setHeadline);
+        UpdateUtils.setIfNotNull(partialUpdates.getPhone(), existing::setPhone);
+        UpdateUtils.setIfNotNull(partialUpdates.getCity(), existing::setCity);
+        UpdateUtils.setIfNotNull(partialUpdates.getBio(), existing::setBio);
+
+        UpdateUtils.setIfNotNull(partialUpdates.getCvUrl(), existing::setCvUrl);
+        UpdateUtils.setIfNotNull(partialUpdates.getPhotoUrl(), existing::setPhotoUrl);
+        UpdateUtils.setIfNotNull(partialUpdates.getLinkedinUrl(), existing::setLinkedinUrl);
+        UpdateUtils.setIfNotNull(partialUpdates.getGithubUrl(), existing::setGithubUrl);
+
+        UpdateUtils.setIfNotNull(partialUpdates.getYearsOfExperience(), existing::setYearsOfExperience);
+        UpdateUtils.setIfNotNull(partialUpdates.getDesiredSalaryMin(), existing::setDesiredSalaryMin);
+        UpdateUtils.setIfNotNull(partialUpdates.getDesiredSalaryMax(), existing::setDesiredSalaryMax);
+        UpdateUtils.setIfNotNull(partialUpdates.getDesiredTjmMin(), existing::setDesiredTjmMin);
+        UpdateUtils.setIfNotNull(partialUpdates.getDesiredTjmMax(), existing::setDesiredTjmMax);
+
+        UpdateUtils.setIfNotNull(partialUpdates.getPreferredWorkMode(), existing::setPreferredWorkMode);
+        UpdateUtils.setIfNotNull(partialUpdates.getPreferredContractTypes(), existing::setPreferredContractTypes);
+        UpdateUtils.setIfNotNull(partialUpdates.getIsOpenToWork(), existing::setIsOpenToWork);
+
+        return existing;
     }
 
     @Transactional

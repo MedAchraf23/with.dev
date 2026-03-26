@@ -36,6 +36,7 @@ public class CandidateController {
     }
 
     @GetMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
     public CandidateResponse getMe(JwtAuthenticationToken token) {
         UUID userId = UUID.fromString(token.getToken().getSubject());
         Candidate candidate = candidateService.getByUserId(userId);
@@ -43,12 +44,19 @@ public class CandidateController {
     }
 
     @PatchMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
     public CandidateResponse update(
         JwtAuthenticationToken token,
         @Valid @RequestBody UpdateCandidateRequest request
     ) {
         UUID userId = UUID.fromString(token.getToken().getSubject());
-        Candidate updated = candidateService.update(userId, request);
+        
+        Candidate partialUpdates = new Candidate();
+        
+        candidateMapper.updateCandidateFromRequest(request, partialUpdates);
+        
+        Candidate updated = candidateService.update(userId, partialUpdates, request.firstName(), request.lastName());
+        
         return candidateMapper.toResponse(updated);
     }
 
