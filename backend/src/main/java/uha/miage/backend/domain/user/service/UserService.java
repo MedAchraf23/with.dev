@@ -1,5 +1,6 @@
 package uha.miage.backend.domain.user.service;
 
+import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,5 +45,25 @@ public class UserService {
     public void delete(UUID userId) {
         User user = getById(userId);
         userRepository.delete(user);
+    }
+
+    @Transactional
+    public void archiveUser(UUID userId) {
+        User user = getById(userId);
+        if (!user.getIsActive()) {
+            throw new BadRequestException("Cet utilisateur est déjà archivé");
+        }
+        user.setIsActive(false);
+        user.setDeletedAt(Instant.now());
+    }
+
+    @Transactional
+    public void unarchiveUser(UUID userId) {
+        User user = getById(userId);
+        if (user.getIsActive()) {
+            throw new BadRequestException("Cet utilisateur est déjà actif");
+        }
+        user.setIsActive(true);
+        user.setDeletedAt(null);
     }
 }
