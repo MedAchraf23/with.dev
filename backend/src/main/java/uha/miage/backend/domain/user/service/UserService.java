@@ -62,7 +62,6 @@ public class UserService {
         User user = getById(userId);
         if (user.getIsActive()) {
             throw new BadRequestException("Cet utilisateur est déjà actif");
-
         }
         user.setIsActive(true);
         user.setDeletedAt(null);

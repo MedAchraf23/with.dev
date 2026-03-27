@@ -174,6 +174,7 @@ class UserServiceTest {
         userService.archiveUser(userId);
 
         assertThat(user.getIsActive()).isFalse();
+        assertThat(user.getDeletedAt()).isNotNull();
     }
 
     @Test
@@ -217,6 +218,7 @@ class UserServiceTest {
         userService.unarchiveUser(userId);
 
         assertThat(user.getIsActive()).isTrue();
+        assertThat(user.getDeletedAt()).isNull();
     }
 
     @Test

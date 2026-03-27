@@ -119,4 +119,34 @@ class UserControllerIntegrationTest {
                                 .andExpect(status().isUnauthorized());
         }
 
+        @Test
+        @DisplayName("PATCH /users/archive - Retourne 400 quand le user est déjà archivé")
+        void patchArchive_quandUserDejaArchive_alorsRetourne400() throws Exception {
+                UUID userId = UUID.randomUUID();
+                userRepository.save(User.builder()
+                                .id(userId)
+                                .email("user@test.com")
+                                .isActive(false)
+                                .deletedAt(Instant.now())
+                                .build());
+
+                mockMvc.perform(patch("/users/archive")
+                                .with(jwt().jwt(j -> j.subject(userId.toString()))))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("PATCH /users/unarchive - Retourne 400 quand le user est déjà actif")
+        void patchUnarchive_quandUserDejaActif_alorsRetourne400() throws Exception {
+                UUID userId = UUID.randomUUID();
+                userRepository.save(User.builder()
+                                .id(userId)
+                                .email("user@test.com")
+                                .isActive(true)
+                                .build());
+
+                mockMvc.perform(patch("/users/unarchive")
+                                .with(jwt().jwt(j -> j.subject(userId.toString()))))
+                                .andExpect(status().isBadRequest());
+        }
 }
