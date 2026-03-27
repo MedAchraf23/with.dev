@@ -5,7 +5,9 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,9 +36,34 @@ public class CandidateController {
     }
 
     @GetMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
     public CandidateResponse getMe(JwtAuthenticationToken token) {
         UUID userId = UUID.fromString(token.getToken().getSubject());
         Candidate candidate = candidateService.getByUserId(userId);
         return candidateMapper.toResponse(candidate);
+    }
+
+    @PatchMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
+    public CandidateResponse update(
+        JwtAuthenticationToken token,
+        @Valid @RequestBody UpdateCandidateRequest request
+    ) {
+        UUID userId = UUID.fromString(token.getToken().getSubject());
+        
+        Candidate partialUpdates = new Candidate();
+        
+        candidateMapper.updateCandidateFromRequest(request, partialUpdates);
+        
+        Candidate updated = candidateService.update(userId, partialUpdates, request.firstName(), request.lastName());
+        
+        return candidateMapper.toResponse(updated);
+    }
+
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(JwtAuthenticationToken token) {
+        UUID userId = UUID.fromString(token.getToken().getSubject());
+        candidateService.delete(userId);
     }
 }
