@@ -181,8 +181,46 @@ class CandidateControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("PATCH /candidates/me - Met à jour le candidat et retourne 200")
-    void patchCandidatesMe_quandDonneesValides_alorsMajCandidatEtRetourne200() throws Exception {
+    @DisplayName("PATCH /candidates/me - Met à jour partiellement le candidat et retourne 200")
+    void patchCandidatesMe_quandDonneesPartielles_alorsMajCandidatEtRetourne200() throws Exception {
+        UUID userId = UUID.randomUUID();
+        userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
+
+        // Créer un candidat d'abord
+        Map<String, Object> createRequest = Map.of(
+                "firstName", "Jean",
+                "lastName", "Dupont",
+                "phone", "0612345678",
+                "city", "Mulhouse"
+        );
+
+        mockMvc.perform(post("/candidates")
+                        .with(jwt().jwt(j -> j.subject(userId.toString())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isCreated());
+
+        // Mettre à jour partiellement le candidat
+        Map<String, Object> updateRequest = Map.of(
+                "firstName", "Jacques",
+                "phone", "0687654321",
+                "city", "Strasbourg"
+        );
+
+        mockMvc.perform(patch("/candidates/me")
+                        .with(jwt().jwt(j -> j.subject(userId.toString())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("Jacques"))
+                .andExpect(jsonPath("$.lastName").value("Dupont"))
+                .andExpect(jsonPath("$.phone").value("0687654321"))
+                .andExpect(jsonPath("$.city").value("Strasbourg"));
+    }
+
+    @Test
+    @DisplayName("PATCH /candidates/me - Met à jour toutes les données du candidat et retourne 200")
+    void patchCandidatesMe_quandDonneesCompletes_alorsMajCandidatEtRetourne200() throws Exception {
         UUID userId = UUID.randomUUID();
         userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
 
@@ -204,7 +242,12 @@ class CandidateControllerIntegrationTest {
         Map<String, Object> updateRequest = Map.of(
                 "firstName", "Jacques",
                 "phone", "0687654321",
-                "city", "Strasbourg"
+                "city", "Strasbourg",
+                "bio", "Nouvelle bio test",
+                "cvUrl", "https://example.com/cv.pdf",
+                "yearsOfExperience", 5,
+                "desiredSalaryMin", 40000,
+                "isOpenToWork", false
         );
 
         mockMvc.perform(patch("/candidates/me")
@@ -215,7 +258,12 @@ class CandidateControllerIntegrationTest {
                 .andExpect(jsonPath("$.firstName").value("Jacques"))
                 .andExpect(jsonPath("$.lastName").value("Dupont"))
                 .andExpect(jsonPath("$.phone").value("0687654321"))
-                .andExpect(jsonPath("$.city").value("Strasbourg"));
+                .andExpect(jsonPath("$.city").value("Strasbourg"))
+                .andExpect(jsonPath("$.bio").value("Nouvelle bio test"))
+                .andExpect(jsonPath("$.cvUrl").value("https://example.com/cv.pdf"))
+                .andExpect(jsonPath("$.yearsOfExperience").value(5))
+                .andExpect(jsonPath("$.desiredSalaryMin").value(40000))
+                .andExpect(jsonPath("$.isOpenToWork").value(false));
     }
 
     @Test
@@ -245,6 +293,72 @@ class CandidateControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("PATCH /candidates/me - Retourne 400 quand la bio est vide (validation @Size)")
+    void patchCandidatesMe_quandBioVide_alorsRetourne400() throws Exception {
+        UUID userId = UUID.randomUUID();
+        userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
+
+        Map<String, Object> updateRequest = Map.of(
+                "bio", ""
+        );
+
+        mockMvc.perform(patch("/candidates/me")
+                        .with(jwt().jwt(j -> j.subject(userId.toString())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("PATCH /candidates/me - Retourne 400 quand les années d'expérience sont négatives (validation @PositiveOrZero)")
+    void patchCandidatesMe_quandAnneesExperienceNegatives_alorsRetourne400() throws Exception {
+        UUID userId = UUID.randomUUID();
+        userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
+
+        Map<String, Object> updateRequest = Map.of(
+                "yearsOfExperience", -2
+        );
+
+        mockMvc.perform(patch("/candidates/me")
+                        .with(jwt().jwt(j -> j.subject(userId.toString())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("PATCH /candidates/me - Retourne 400 quand l'URL du CV est invalide")
+    void patchCandidatesMe_quandUrlCvInvalide_alorsRetourne400() throws Exception {
+        UUID userId = UUID.randomUUID();
+        userRepository.save(User.builder().id(userId).email("candidat@test.com").isActive(true).build());
+
+        // Créer un candidat d'abord
+        Map<String, Object> createRequest = Map.of(
+                "firstName", "Jean",
+                "lastName", "Dupont",
+                "phone", "0612345678",
+                "city", "Mulhouse"
+        );
+
+        mockMvc.perform(post("/candidates")
+                        .with(jwt().jwt(j -> j.subject(userId.toString())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isCreated());
+
+        // Tenter de mettre à jour avec une URL invalide
+        Map<String, Object> updateRequest = Map.of(
+                "cvUrl", "url-invalide"
+        );
+
+        mockMvc.perform(patch("/candidates/me")
+                        .with(jwt().jwt(j -> j.subject(userId.toString())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

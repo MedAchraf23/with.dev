@@ -2,7 +2,8 @@ package uha.miage.backend.api.candidate;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.constraints.Size; // <-- Nouvel import !
+import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.URL;
 import java.math.BigDecimal;
 import java.util.List;
 import uha.miage.backend.domain.common.enums.ContractType;
@@ -27,15 +28,19 @@ public record UpdateCandidateRequest(
         @Size(min = 1, message = "La bio ne peut pas être vide")
         String bio,
         
+        @URL(message = "L'URL du CV doit être valide")
         @Size(min = 1, message = "L'URL du CV ne peut pas être vide")
         String cvUrl,
         
+        @URL(message = "L'URL de la photo doit être valide")
         @Size(min = 1, message = "L'URL de la photo ne peut pas être vide")
         String photoUrl,
         
+        @URL(message = "L'URL LinkedIn doit être valide")
         @Size(min = 1, message = "L'URL LinkedIn ne peut pas être vide")
         String linkedinUrl,
         
+        @URL(message = "L'URL GitHub doit être valide")
         @Size(min = 1, message = "L'URL GitHub ne peut pas être vide")
         String githubUrl,
         

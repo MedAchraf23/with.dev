@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -139,7 +140,47 @@ class CandidateServiceTest {
         assertThat(result.getCity()).isEqualTo("Strasbourg");
         assertThat(result.getBio()).isEqualTo("Nouvelle bio");
         
-        verify(candidateRepository, org.mockito.Mockito.never()).save(any());
+        verify(candidateRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Met à jour toutes les données du candidat et de l'utilisateur sans appeler save()")
+    void update_quandDonneesCompletes_alorsMetAJourSansSave() {
+        UUID userId = UUID.randomUUID();
+        
+        User existingUser = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .set(field(User::getFirstName), "Jean")
+                .set(field(User::getLastName), "Dupont")
+                .create();
+                
+        Candidate existingCandidate = Instancio.of(Candidate.class)
+                .set(field(Candidate::getUser), existingUser)
+                .set(field(Candidate::getCity), "Paris")
+                .set(field(Candidate::getBio), "Ancienne bio")
+                .set(field(Candidate::getYearsOfExperience), 2)
+                .set(field(Candidate::getCvUrl), "http://old.url")
+                .create();
+
+        Candidate partialUpdates = new Candidate();
+        partialUpdates.setCity("Strasbourg");
+        partialUpdates.setBio("Nouvelle bio");
+        partialUpdates.setYearsOfExperience(5);
+        partialUpdates.setCvUrl("http://new.url");
+
+        when(candidateRepository.findByUserId(userId)).thenReturn(Optional.of(existingCandidate));
+
+        Candidate result = candidateService.update(userId, partialUpdates, "Jacques", "Martin");
+
+        assertThat(existingUser.getFirstName()).isEqualTo("Jacques");
+        assertThat(existingUser.getLastName()).isEqualTo("Martin");
+
+        assertThat(result.getCity()).isEqualTo("Strasbourg");
+        assertThat(result.getBio()).isEqualTo("Nouvelle bio");
+        assertThat(result.getYearsOfExperience()).isEqualTo(5);
+        assertThat(result.getCvUrl()).isEqualTo("http://new.url");
+        
+        verify(candidateRepository, never()).save(any());
     }
 
     @Test
@@ -165,6 +206,6 @@ class CandidateServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Profil candidat non trouvé");
                 
-        verify(candidateRepository, org.mockito.Mockito.never()).delete(any());
+        verify(candidateRepository, never()).delete(any());
     }
 }
