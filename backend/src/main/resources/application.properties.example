@@ -1,0 +1,25 @@
+# Spring Configuration
+spring.application.name=backend
+spring.profiles.active=dev
+server.servlet.context-path=/api
+
+# Database
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://<host>:<port>/postgres
+spring.datasource.username=<username>
+spring.datasource.password=<password>
+# JPA
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# Swagger
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+
+# JWT Supabase
+supabase.jwt.url=https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json
+
+# DEBUG
+logging.level.org.springframework.security=DEBUG

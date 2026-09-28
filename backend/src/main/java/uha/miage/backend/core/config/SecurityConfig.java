@@ -24,9 +24,6 @@ public class SecurityConfig {
     private final CorsConfigurationSource corsConfigurationSource;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
-    @Value("${supabase.jwt.secret}")
-    private String jwtSecret;
-
     @Value("${supabase.jwt.url}")
     private String jwkSetUri;
 
