@@ -17,6 +17,16 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    @Transactional
+    public User getOrCreate(UUID userId, String email) {
+        return userRepository.findById(userId)
+                .orElseGet(() -> userRepository.save(
+                        User.builder()
+                                .id(userId)
+                                .email(email)
+                                .build()));
+    }
+
     public User findAndValidateForOnboarding(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));

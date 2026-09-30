@@ -9,39 +9,36 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import uha.miage.backend.domain.user.entity.User;
-import uha.miage.backend.domain.user.repository.UserRepository;
+import uha.miage.backend.domain.user.service.UserService;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Convertisseur JWT personnalisé pour Spring Security.
- * 
- * Extrait le rôle de l'utilisateur depuis la base de données
- * et le transforme en GrantedAuthority pour Spring Security.
+ *
+ * Rattache le compte Supabase porté par le jeton à l'utilisateur applicatif,
+ * créé lors de sa première requête authentifiée, et expose son rôle sous forme
+ * de GrantedAuthority. Tant que l'onboarding n'a pas eu lieu, le rôle est null
+ * et aucune autorité n'est accordée.
  */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        String email = jwt.getClaimAsString("email");
-
-        if (email == null || email.isEmpty()) {
-            email = jwt.getSubject();
-        }
-
-        final String userEmail = email;
-
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé pour l'email: " + userEmail));
+        UUID userId = UUID.fromString(jwt.getSubject());
+        User user = userService.getOrCreate(userId, jwt.getClaimAsString("email"));
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        if (user.getRole() != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        }
 
-        return new JwtAuthenticationToken(jwt, authorities, userEmail);
+        return new JwtAuthenticationToken(jwt, authorities, user.getEmail());
     }
 }

@@ -3,6 +3,8 @@ package uha.miage.backend.domain.user.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +31,38 @@ class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+
+    // ===== getOrCreate =====
+
+    @Test
+    @DisplayName("Retourne le user existant sans le recréer")
+    void getOrCreate_quandUserExiste_alorsRetourneUserSansCreation() {
+        UUID userId = UUID.randomUUID();
+        User user = Instancio.of(User.class)
+                .set(field(User::getId), userId)
+                .create();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        User result = userService.getOrCreate(userId, "jean.dupont@mail.com");
+
+        assertThat(result).isEqualTo(user);
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Crée le user sans rôle quand il n'existe pas encore")
+    void getOrCreate_quandUserInexistant_alorsCreeUserSansRole() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = userService.getOrCreate(userId, "jean.dupont@mail.com");
+
+        assertThat(result.getId()).isEqualTo(userId);
+        assertThat(result.getEmail()).isEqualTo("jean.dupont@mail.com");
+        assertThat(result.getRole()).isNull();
+        assertThat(result.getIsActive()).isTrue();
+    }
 
     // ===== findAndValidateForOnboarding =====
 
