@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import JobOfferFilters from "@/features/offres/components/JobOfferFilters.tsx";
-import { ContractType, WorkMode } from "@/features/offres/interfaces/job-offer.type.ts";
+import { ContractType, WorkMode } from '@/types/common.type.ts';
 
 describe('JobOfferFilters - Unit', (): void => {
 

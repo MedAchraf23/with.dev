@@ -1,12 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import JobOfferCard from "@/features/offres/components/JobOfferCard.tsx";
-import {
-    ContractType,
-    ExperienceLevel,
-    JobOffer,
-    WorkMode,
-} from "@/features/offres/interfaces/job-offer.type.ts";
+import { ExperienceLevel, JobOffer } from '@/features/offres/interfaces/job-offer.type.ts';
+import { ContractType, WorkMode } from '@/types/common.type.ts';
 
 function anOffer(overrides: Partial<JobOffer> = {}): JobOffer {
     return {

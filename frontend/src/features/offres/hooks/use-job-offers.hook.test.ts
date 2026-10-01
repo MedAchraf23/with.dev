@@ -2,12 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useJobOffers } from "@/features/offres/hooks/use-job-offers.hook.ts";
 import JobOfferService from "@/features/offres/services/job-offer.service.ts";
-import {
-    ContractType,
-    EMPTY_CRITERIA,
-    JobOffer,
-    WorkMode,
-} from "@/features/offres/interfaces/job-offer.type.ts";
+import { EMPTY_CRITERIA, JobOffer } from '@/features/offres/interfaces/job-offer.type.ts';
+import { ContractType, WorkMode } from '@/types/common.type.ts';
 
 vi.mock('@/features/offres/services/job-offer.service', () => ({
     default: {

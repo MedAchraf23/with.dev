@@ -1,16 +1,4 @@
-export enum ContractType {
-    CDI = "CDI",
-    CDD = "CDD",
-    FREELANCE = "FREELANCE",
-    STAGE = "STAGE",
-    ALTERNANCE = "ALTERNANCE",
-}
-
-export enum WorkMode {
-    ON_SITE = "ON_SITE",
-    HYBRID = "HYBRID",
-    FULL_REMOTE = "FULL_REMOTE",
-}
+import { ContractType, WorkMode } from '@/types/common.type.ts';
 
 export enum ExperienceLevel {
     JUNIOR = "JUNIOR",
@@ -49,20 +37,6 @@ export const EMPTY_CRITERIA: JobOfferSearchCriteria = {
     city: "",
     contractType: "",
     workMode: "",
-};
-
-export const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
-    [ContractType.CDI]: "CDI",
-    [ContractType.CDD]: "CDD",
-    [ContractType.FREELANCE]: "Freelance",
-    [ContractType.STAGE]: "Stage",
-    [ContractType.ALTERNANCE]: "Alternance",
-};
-
-export const WORK_MODE_LABELS: Record<WorkMode, string> = {
-    [WorkMode.ON_SITE]: "Sur site",
-    [WorkMode.HYBRID]: "Hybride",
-    [WorkMode.FULL_REMOTE]: "Télétravail total",
 };
 
 export const EXPERIENCE_LEVEL_LABELS: Record<ExperienceLevel, string> = {

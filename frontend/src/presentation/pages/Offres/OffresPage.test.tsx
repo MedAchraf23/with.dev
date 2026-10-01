@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import OffresPage from "@/presentation/pages/Offres/OffresPage.tsx";
 import { useJobOffers } from "@/features/offres/hooks/use-job-offers.hook.ts";
-import { ContractType, JobOffer, WorkMode } from "@/features/offres/interfaces/job-offer.type.ts";
+import { JobOffer } from '@/features/offres/interfaces/job-offer.type.ts';
+import { ContractType, WorkMode } from '@/types/common.type.ts';
 
 vi.mock('@/features/offres/hooks/use-job-offers.hook', () => ({
     useJobOffers: vi.fn(),

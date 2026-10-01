@@ -3,11 +3,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import JobOfferService from './job-offer.service.ts';
 import BackendApi from '@/infrastructure/api/backend.api.ts';
-import {
-    ContractType,
-    EMPTY_CRITERIA,
-    WorkMode,
-} from '@/features/offres/interfaces/job-offer.type.ts';
+import { EMPTY_CRITERIA } from '@/features/offres/interfaces/job-offer.type.ts';
+import { ContractType, WorkMode } from '@/types/common.type.ts';
 
 vi.mock('@/infrastructure/api/backend.api', () => ({
     default: {

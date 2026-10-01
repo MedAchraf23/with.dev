@@ -2,14 +2,8 @@ import { FormEvent, ReactNode, useState } from 'react';
 import { Input } from '@heroui/input';
 import { Select, SelectItem } from '@heroui/select';
 import { Button } from '@heroui/button';
-import {
-    CONTRACT_TYPE_LABELS,
-    ContractType,
-    EMPTY_CRITERIA,
-    JobOfferSearchCriteria,
-    WORK_MODE_LABELS,
-    WorkMode,
-} from '@/features/offres/interfaces/job-offer.type.ts';
+import { EMPTY_CRITERIA, JobOfferSearchCriteria } from '@/features/offres/interfaces/job-offer.type.ts';
+import { CONTRACT_TYPE_LABELS, ContractType, WORK_MODE_LABELS, WorkMode } from '@/types/common.type.ts';
 
 interface JobOfferFiltersProps {
     onSearch: (criteria: JobOfferSearchCriteria) => void;

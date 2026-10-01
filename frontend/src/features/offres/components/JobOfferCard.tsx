@@ -1,12 +1,8 @@
 import { ReactNode } from 'react';
 import { Card, CardBody } from '@heroui/card';
 import { Chip } from '@heroui/chip';
-import {
-    CONTRACT_TYPE_LABELS,
-    EXPERIENCE_LEVEL_LABELS,
-    JobOffer,
-    WORK_MODE_LABELS,
-} from '@/features/offres/interfaces/job-offer.type.ts';
+import { EXPERIENCE_LEVEL_LABELS, JobOffer } from '@/features/offres/interfaces/job-offer.type.ts';
+import { CONTRACT_TYPE_LABELS, WORK_MODE_LABELS } from '@/types/common.type.ts';
 
 interface JobOfferCardProps {
     offer: JobOffer;

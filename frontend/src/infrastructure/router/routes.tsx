@@ -8,6 +8,7 @@ import AuthCallback from "@/features/authentification/components/AuthCallback.ts
 import AuthGuard from "@/presentation/guards/AuthGuard.tsx";
 import ConfirmEmailPage from "@/presentation/pages/Authentification/ConfirmEmailPage.tsx";
 import OffresPage from "@/presentation/pages/Offres/OffresPage.tsx";
+import ProfilPage from "@/presentation/pages/Profil/ProfilPage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
                     {
                         path: '/offres',
                         element: <OffresPage />
+                    },
+                    {
+                        path: '/profil',
+                        element: <ProfilPage />
                     },
                     {
                         path: "*",
