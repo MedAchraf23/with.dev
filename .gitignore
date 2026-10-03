@@ -4,3 +4,7 @@
 
 # Notes perso
 perso.notes.txt
+
+# Claude Code : réglages propres à chaque machine.
+# Les commandes de .claude/commands/ restent versionnées, elles font partie du processus d'équipe.
+.claude/settings.local.json

@@ -78,3 +78,32 @@ recevant le statut en paramètre.
 ## Suivi du travail
 
 Le découpage en tickets et leur avancement sont dans [docs/TICKETS.md](docs/TICKETS.md).
+
+## Processus de travail
+
+À appliquer systématiquement, sans attendre qu'on le demande.
+
+**Avant d'écrire du code** — étudier le code existant le plus proche de ce qui va être produit
+et s'en inspirer : mêmes couches, mêmes conventions de nommage, même style de tests. Devant un
+doute d'architecture, analyser l'existant plutôt que de trancher seul.
+
+**Pendant** — expliquer les décisions non évidentes au fil de l'eau, et signaler les écarts
+assumés par rapport aux conventions. Un correctif de bug ne s'accompagne pas d'un nettoyage
+alentour ; une opération ponctuelle n'a pas besoin d'une abstraction.
+
+**Tests** — toute nouvelle fonctionnalité est couverte au même niveau que l'existant pour la
+partie concernée : service, hook, composant, page côté frontend ; service et controller côté
+backend.
+
+**Avant de proposer un commit** — lancer les tests concernés, la vérification du typage
+TypeScript si le frontend est touché, et le build en cas de doute.
+
+**À la fin d'un ticket** — mettre à jour `docs/TICKETS.md`, et ajouter à la section « Pièges
+connus » ci-dessus tout problème non évident rencontré, c'est-à-dire tout ce qui a coûté du
+temps et qui ne se déduit pas de la lecture du code.
+
+**Commits** — un commit par ticket, titre au format `Ticket N : <titre>`, corps expliquant le
+pourquoi des décisions et pas seulement le quoi. Ne jamais commiter sans validation explicite.
+
+**Format d'un nouveau ticket** — un objectif en une phrase, les fichiers ou couches concernés,
+les règles métier à respecter, et ce qui devra être testable manuellement une fois terminé.
