@@ -1,8 +1,8 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import RootLayout from "@/presentation/layouts/RootLayout.tsx";
 import AuthLayout from "@/presentation/layouts/AuthLayout.tsx";
+import MainLayout from "@/presentation/layouts/MainLayout.tsx";
 import {AuthPage} from "@/presentation/pages/Authentification/AuthPage.tsx";
-import Dashboard from "@/presentation/pages/Dashboard.tsx";
 import NotFoundPage from "@/presentation/pages/NotFoundPage.tsx";
 import AuthCallback from "@/features/authentification/components/AuthCallback.tsx";
 import AuthGuard from "@/presentation/guards/AuthGuard.tsx";
@@ -37,20 +37,25 @@ export const router = createBrowserRouter([
                 element: <AuthGuard />,
                 children: [
                     {
-                        path: '/dashboard',
-                        element: <Dashboard />
-                    },
-                    {
-                        path: '/offres',
-                        element: <OffresPage />
-                    },
-                    {
-                        path: '/profil',
-                        element: <ProfilPage />
-                    },
-                    {
-                        path: "*",
-                        element: <NotFoundPage />
+                        element: <MainLayout />,
+                        children: [
+                            {
+                                index: true,
+                                element: <Navigate to="/offres" replace />
+                            },
+                            {
+                                path: '/offres',
+                                element: <OffresPage />
+                            },
+                            {
+                                path: '/profil',
+                                element: <ProfilPage />
+                            },
+                            {
+                                path: "*",
+                                element: <NotFoundPage />
+                            },
+                        ]
                     },
                 ]
             },

@@ -90,14 +90,14 @@ describe('AuthCallback - Integration', (): void => {
             expect(AuthService.verifyOtp).toHaveBeenCalledWith('abc123', 'email');
         });
 
-        it('should navigate to dashboard on success', async (): Promise<void> => {
+        it('should navigate to the offers page on success', async (): Promise<void> => {
             vi.mocked(AuthService.verifyOtp).mockResolvedValue(undefined);
 
             await act(async (): Promise<void> => {
                 renderWithUrl('/auth/callback?token_hash=abc123&type=email');
             });
 
-            expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
+            expect(mockNavigate).toHaveBeenCalledWith('/offres', { replace: true });
         });
 
         it('should show error on verifyOtp failure', async (): Promise<void> => {
@@ -119,7 +119,7 @@ describe('AuthCallback - Integration', (): void => {
             expect(AuthService.onAuthStateChange).toHaveBeenCalledTimes(1);
         });
 
-        it('should navigate to dashboard when session received', async (): Promise<void> => {
+        it('should navigate to the offers page when session received', async (): Promise<void> => {
             vi.mocked(AuthService.onAuthStateChange).mockImplementation((callback): Subscription => {
                 callback('SIGNED_IN' as any, { user: {} } as any);
                 return {
@@ -133,7 +133,7 @@ describe('AuthCallback - Integration', (): void => {
                 renderWithUrl('/auth/callback');
             });
 
-            expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
+            expect(mockNavigate).toHaveBeenCalledWith('/offres', { replace: true });
         });
 
     });

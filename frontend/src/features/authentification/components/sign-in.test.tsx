@@ -116,7 +116,7 @@ describe('SignIn Component - Unit', (): void => {
             await waitFor(() => {
                 expect(mockSignIn).toHaveBeenCalledWith('test@mail.com', 'Password_123!');
                 expect(addToast).toHaveBeenCalled();
-                expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
+                expect(mockNavigate).toHaveBeenCalledWith('/offres');
             });
         });
 

@@ -33,7 +33,7 @@ export default function AuthCallback(): ReactNode {
                         color: "success",
                         timeout: 3000
                     });
-                    navigate("/dashboard", { replace: true });
+                    navigate("/offres", { replace: true });
                 }
             });
 
@@ -58,7 +58,7 @@ export default function AuthCallback(): ReactNode {
                     color: "success",
                     timeout: 3000
                 });
-                navigate("/dashboard", { replace: true });
+                navigate("/offres", { replace: true });
             })
             .catch((): void => setError("La vérification a échoué. Le lien est peut-être expiré."));
     }, [navigate, searchParams]);

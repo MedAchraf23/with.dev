@@ -33,7 +33,7 @@ export default function SignIn(): ReactNode {
                     color: "success",
                     timeout: 3000,
                 });
-                navigate("/dashboard");
+                navigate("/offres");
             } catch (err: any) {
                 setError("La connexion a échoué : identifiants de connexion incorrects");
             }
