@@ -1,0 +1,66 @@
+# Lancement complet du projet : docker compose up
+# Aucune configuration ni secret à fournir. La base est un PostgreSQL local, et
+# non la base Supabase : s'y connecter exigerait de publier son mot de passe, le
+# seul vrai secret du système. L'authentification continue de passer par le
+# Supabase cloud, qui ne demande que des valeurs publiques.
+
+services:
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: withdev
+      POSTGRES_USER: withdev
+      # Ce mot de passe ne protège qu'un conteneur jetable et recréable : ce
+      # n'est pas un secret.
+      POSTGRES_PASSWORD: withdev
+    # Publié pour que le mode développement sur la machine (./mvnw spring-boot:run,
+    # dont la valeur par défaut vise localhost:5432) puisse atteindre cette base.
+    ports:
+      - "5432:5432"
+    # Volume nommé : les données survivent à « docker compose down », et ne sont
+    # supprimées que par « docker compose down -v ».
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # PostgreSQL met quelques secondes à accepter des connexions. Sans ce
+    # contrôle, le backend démarrerait trop tôt et Hibernate échouerait.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U withdev -d withdev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      # « db » est le nom du service, résolu par le DNS interne du réseau
+      # Compose. Cette adresse n'a de sens qu'entre conteneurs.
+      DB_URL: jdbc:postgresql://db:5432/withdev
+      DB_USERNAME: withdev
+      DB_PASSWORD: withdev
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      # Arguments de build et non variables d'exécution : Vite inscrit ces
+      # valeurs en dur dans le bundle pendant la compilation.
+      args:
+        # localhost et non « backend » : ce code s'exécute dans le navigateur de
+        # l'utilisateur, qui n'est pas sur le réseau Docker.
+        VITE_API_URL: http://localhost:8081/api
+        VITE_SUPABASE_URL: https://gfkuplmkrynlsuudtfmm.supabase.co
+        VITE_SUPABASE_ANON_KEY: sb_publishable_fI470_Ry-ih0T5B1FpmJZA_GD_qq_gh
+    # Port 5173 côté hôte : c'est la seule origine autorisée par CorsConfig, et
+    # celle attendue par les redirections de Supabase Auth.
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:

@@ -1,0 +1,10 @@
+# Allège le contexte de build et évite d'embarquer un jar compilé sous Windows.
+target/
+
+# Le build de l'image utilise l'image Maven, pas le wrapper.
+.mvn/
+mvnw
+mvnw.cmd
+
+*.md
+.gitignore

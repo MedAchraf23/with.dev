@@ -24,7 +24,8 @@ dist-ssr
 
 .env
 
+# package-lock.json reste versionné : il est nécessaire à npm ci,
+# utilisé par le build Docker et par l'intégration continue.
 pnpm-lock.yaml
 yarn.lock
-package-lock.json
 bun.lockb

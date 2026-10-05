@@ -1,0 +1,12 @@
+# Indispensable : node_modules installé sous Windows contient des binaires
+# compilés pour la plateforme, qui casseraient npm dans l'image Linux.
+node_modules
+dist
+
+# Les valeurs VITE_* arrivent par arguments de build, pas par ce fichier.
+.env
+
+*.md
+.gitignore
+LICENSE
+coverage

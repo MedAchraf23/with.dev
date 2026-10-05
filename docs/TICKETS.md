@@ -64,39 +64,26 @@ profit d'une redirection vers `/offres`, et redirection de la racine.
 Aucun test ne démarrait : jsdom 28 charge en CommonJS des paquets désormais publiés en ESM.
 Remplacé par happy-dom, et neutralisation de l'API Web Animations dans la configuration de test.
 
+### #8 — Conteneurisation
+
+`docker compose up` sur un clone neuf lance la base, le backend et le frontend, sans aucune
+configuration à fournir. `application.properties` est désormais versionné et sans secret : chaque
+valeur dépendant de l'environnement est lue via `${VARIABLE:défaut}`, les défauts visant le
+PostgreSQL local et le compose injectant l'adresse interne `db:5432`. Les deux images sont
+construites en multi-étapes (Maven puis JRE seul ; Vite puis nginx seul), les variables `VITE_*`
+passant par des arguments de build puisque Vite les fige à la compilation.
+
+La base du compose est un PostgreSQL **local** et non la base Supabase : s'y connecter exigerait
+de publier son mot de passe, le seul vrai secret du système. L'authentification continue de passer
+par le Supabase cloud, qui ne demande que des valeurs publiques. Le frontend est publié sur le
+port 5173, seule origine acceptée par le CORS et attendue par les redirections Supabase.
+
+Effet de bord utile : les tests backend tournaient jusqu'ici grâce à un fichier non versionné, et
+échouaient donc sur un clone neuf. Ils passent maintenant sans configuration, ce qui débloque #10.
+
 ---
 
 ## Empaquetage du projet
-
-### #8 — Conteneurisation
-
-**Objectif** : `git clone` puis `docker compose up`, et l'application tourne sur n'importe quelle
-machine, sans configuration ni secret à fournir.
-
-**Prérequis bloquant** — `backend/src/main/resources/application.properties` n'est pas versionné
-car il contient le mot de passe de la base. Un dépôt fraîchement cloné ne peut donc pas démarrer.
-Il faut le remplacer par un fichier versionné **sans aucun secret**, où chaque valeur est lue
-depuis une variable d'environnement avec une valeur par défaut adaptée au compose.
-
-**Livrables**
-
-- `backend/Dockerfile` — construction multi-étapes : compilation Maven puis image d'exécution
-  ne contenant que le JRE et le fichier `.jar`.
-- `frontend/Dockerfile` — construction multi-étapes : build Vite puis service des fichiers
-  statiques. Les variables `VITE_*` étant figées à la compilation, elles passent par des
-  arguments de build.
-- `docker-compose.yml` — trois services : `db` (PostgreSQL avec volume), `backend`, `frontend`.
-  Dépendances de démarrage et contrôle de santé sur la base.
-- Mise à jour du `Makefile`, qui référence aujourd'hui un `docker-compose.yml` inexistant.
-
-**Choix d'architecture retenu** — la base du compose est un PostgreSQL **local**, pas la base
-Supabase : s'y connecter exigerait de publier le mot de passe de la base, le seul vrai secret du
-système. L'authentification continue de passer par le Supabase cloud, qui ne demande que des
-valeurs publiques (clé `publishable`, URL JWKS). Le seeder peuplant automatiquement une base
-vide, l'application démarre avec ses offres.
-
-**Testable manuellement** — sur un clone neuf, sans fichier de configuration : `docker compose up`
-puis ouverture du frontend, inscription, consultation des offres déjà présentes.
 
 ### #10 — Intégration continue GitHub Actions
 
@@ -190,6 +177,9 @@ Chantier plus conséquent que #13, à arbitrer selon le temps disponible.
   Le mécanisme est câblé et testé, mais inutile tant que seul le parcours candidat existe.
 - **Les tests backend tournent sur H2 alors que la production utilise PostgreSQL** — voir les
   pièges connus dans `CLAUDE.md`. Des Testcontainers supprimeraient cet écart.
+- **Aucun outil de migration de schéma** : c'est `spring.jpa.hibernate.ddl-auto=update` qui crée
+  les tables. Suffisant pour une base de démonstration recréée à volonté, inadapté à une vraie
+  production où un schéma existant doit évoluer sans perte. Flyway serait le choix correct.
 - **La page 404 est un simple paragraphe**, sans mise en page ni lien de retour.
 - **Pas de TJM ni de photo** dans le formulaire de profil, alors que les colonnes existent en
   base — choix volontaire pour limiter la taille du formulaire.
