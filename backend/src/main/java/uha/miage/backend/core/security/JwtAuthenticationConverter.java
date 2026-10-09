@@ -16,12 +16,10 @@ import java.util.Collection;
 import java.util.UUID;
 
 /**
- * Convertisseur JWT personnalisé pour Spring Security.
- *
- * Rattache le compte Supabase porté par le jeton à l'utilisateur applicatif,
- * créé lors de sa première requête authentifiée, et expose son rôle sous forme
- * de GrantedAuthority. Tant que l'onboarding n'a pas eu lieu, le rôle est null
- * et aucune autorité n'est accordée.
+ * Turns a verified Supabase JWT into Spring Security's authentication object.
+ * Links the token to the application user (created on first request) and exposes
+ * their role as an authority. Before onboarding the role is null, so no authority
+ * is granted.
  */
 @Component
 @RequiredArgsConstructor
@@ -29,6 +27,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
     private final UserService userService;
 
+    /** Reads the user id and email from the token, provisions the user, and attaches their role (if any). */
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());

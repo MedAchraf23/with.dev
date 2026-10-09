@@ -12,6 +12,7 @@ import uha.miage.backend.domain.user.enums.UserRole;
 import uha.miage.backend.domain.user.repository.CandidateRepository;
 import uha.miage.backend.domain.common.UpdateUtils;
 
+/** Handles the candidate profile: its creation (onboarding), lookup, update and removal. */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -20,6 +21,7 @@ public class CandidateService {
     private final CandidateRepository candidateRepository;
     private final UserService userService;
 
+    /** Onboards the user as a candidate: assigns the CANDIDATE role and creates the profile. Rejects a second profile. */
     @Transactional
     public Candidate create(Candidate candidate, UUID userId, String firstName, String lastName) {
         User user = userService.findAndValidateForOnboarding(userId);
@@ -36,11 +38,13 @@ public class CandidateService {
         return candidateRepository.save(candidate);
     }
 
+    /** Loads the candidate profile for this user, or throws if none exists. */
     public Candidate getByUserId(UUID userId) {
         return candidateRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Profil candidat non trouvé"));
     }
 
+    /** Partial update: only non-null fields from the request overwrite the stored profile. */
     @Transactional
     public Candidate update(UUID userId, Candidate partialUpdates, String firstName, String lastName) {
         
@@ -73,6 +77,7 @@ public class CandidateService {
         return existing;
     }
 
+    /** Removes the candidate profile for this user. */
     @Transactional
     public void delete(UUID userId) {
         Candidate candidate = getByUserId(userId);

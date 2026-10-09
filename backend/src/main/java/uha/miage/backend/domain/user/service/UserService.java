@@ -10,6 +10,7 @@ import uha.miage.backend.core.exception.ResourceNotFoundException;
 import uha.miage.backend.domain.user.entity.User;
 import uha.miage.backend.domain.user.repository.UserRepository;
 
+/** Manages the application user behind a Supabase account: provisioning, lookup, profile and archiving. */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -17,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    /** Returns the user for this Supabase id, creating the row on first authenticated request (provisioning). */
     @Transactional
     public User getOrCreate(UUID userId, String email) {
         return userRepository.findById(userId)
@@ -27,6 +29,7 @@ public class UserService {
                                 .build()));
     }
 
+    /** Loads the user and ensures onboarding has not happened yet (role still null). */
     public User findAndValidateForOnboarding(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
@@ -38,11 +41,13 @@ public class UserService {
         return user;
     }
 
+    /** Loads the user by id, or throws if none exists. */
     public User getById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
     }
 
+    /** Updates the user's first and last name. */
     @Transactional
     public User update(UUID userId, String firstName, String lastName) {
         User user = getById(userId);
@@ -51,12 +56,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /** Permanently removes the user. */
     @Transactional
     public void delete(UUID userId) {
         User user = getById(userId);
         userRepository.delete(user);
     }
 
+    /** Soft-deletes the user: marks inactive and stamps the deletion time. */
     @Transactional
     public void archiveUser(UUID userId) {
         User user = getById(userId);
@@ -67,6 +74,7 @@ public class UserService {
         user.setDeletedAt(Instant.now());
     }
 
+    /** Reverses archiving: marks the user active again and clears the deletion time. */
     @Transactional
     public void unarchiveUser(UUID userId) {
         User user = getById(userId);
