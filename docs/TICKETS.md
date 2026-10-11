@@ -90,9 +90,13 @@ cache des dépendances Maven et npm.
 **Périmètre élargi** par rapport à la description d'origine, qui s'arrêtait à la compilation et
 aux tests : un troisième travail construit les deux images et les publie sur
 `ghcr.io/medachraf23/with.dev/backend` et `.../frontend`, taguées avec le SHA du commit **et**
-`latest`. Il dépend de la réussite des deux premiers, et ne tourne que sur la branche principale :
-`latest` désigne ainsi toujours du code testé, et une branche de travail est vérifiée sans rien
-publier.
+`latest`. Il dépend de la réussite des deux premiers.
+
+Les images sont **construites sur toutes les branches, publiées depuis `main` seulement** : la
+condition porte sur le paramètre `push` des étapes de construction, et non sur le travail entier.
+Construire est une vérification au même titre qu'un test — un `Dockerfile` cassé est signalé sur
+la branche, avant la fusion — tandis que `latest` continue de ne désigner que du code fusionné et
+testé.
 
 Le nom du dépôt est converti en minuscules dans le workflow, `ghcr.io` refusant les majuscules de
 `MedAchraf23`. L'authentification au registre passe par le jeton fourni automatiquement à chaque

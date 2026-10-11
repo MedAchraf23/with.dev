@@ -1,7 +1,10 @@
 # --- Étape 1 : compilation ---
-# L'image officielle Maven embarque le JDK 21 exigé par le pom.xml. On ne passe
-# pas par ./mvnw : son jar est ignoré par git, et le bit exécutable du script
-# n'est pas conservé depuis Windows.
+# L'image officielle Maven embarque le JDK 21 exigé par le pom.xml. On appelle
+# « mvn » directement plutôt que ./mvnw : le wrapper sert à obtenir Maven sans
+# l'avoir installé, ce que cette image fournit déjà, et il téléchargerait une
+# seconde distribution pour rien. L'intégration continue, elle, passe bien par
+# ./mvnw, afin d'utiliser la version de Maven que le projet déclare plutôt que
+# celle préinstallée sur la machine GitHub.
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 

@@ -90,13 +90,10 @@ jobs:
         run: npm run build
 
   images:
-    name: Publication des images sur GHCR
+    name: Images Docker — construction, puis publication depuis main
     # Les deux travaux ci-dessus doivent réussir : « needs » suffit à l'imposer,
     # un échec saute celui-ci.
     needs: [backend, frontend]
-    # Les branches de travail sont testées mais ne publient rien : seule la
-    # branche principale produit des images, pour que « latest » reste fiable.
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -130,7 +127,11 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: backend
-          push: true
+          # Construite sur toutes les branches, publiée seulement depuis la
+          # branche principale. Construire est une vérification au même titre
+          # qu'un test : un Dockerfile cassé est ainsi signalé avant la fusion,
+          # et le tag « latest » continue de ne désigner que du code fusionné.
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: |
             ${{ env.IMAGES }}/backend:${{ github.sha }}
             ${{ env.IMAGES }}/backend:latest
@@ -142,7 +143,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: frontend
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: |
             ${{ env.IMAGES }}/frontend:${{ github.sha }}
             ${{ env.IMAGES }}/frontend:latest
