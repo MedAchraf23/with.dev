@@ -113,9 +113,11 @@ recevant le statut en paramètre.
 - **`ghcr.io` refuse les majuscules dans un nom d'image**, alors que le dépôt s'appelle
   `MedAchraf23/with.dev`. Le workflow convertit `GITHUB_REPOSITORY` en minuscules ; sans cela, le
   push échoue sur `invalid reference format`.
-- **Les paquets GHCR sont créés privés** : un `docker pull` anonyme échoue tant que leur
-  visibilité n'a pas été passée à publique à la main dans GitHub. Ce réglage n'est pas accessible
-  depuis le workflow.
+- **Les paquets GHCR héritent de la visibilité du dépôt** quand ils sont publiés par un workflow :
+  le dépôt étant public, les deux images le sont aussi et un `docker pull` anonyme fonctionne, sans
+  réglage à faire. Si le dépôt passait en privé, les paquets suivraient. Le seul test fiable est
+  une requête anonyme au registre (`https://ghcr.io/token?scope=repository:<dépôt>/<image>:pull`
+  puis lecture du manifeste), l'interface n'étant pas explicite là-dessus.
 - **L'historique git contient le mot de passe d'un ancien projet Supabase** (`zpcafhjuotmpncrzihkq`,
   commits antérieurs à `ccd691e`). À supprimer ou faire tourner avant de rendre le dépôt public.
 

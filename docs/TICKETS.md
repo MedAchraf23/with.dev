@@ -105,9 +105,10 @@ sur un clone neuf. Un `frontend/.env.test` versionné — chargé par Vite en mo
 sur `.env`, sans aucun secret — rend les 193 tests verts sans configuration. Même nature de
 correctif que celui du ticket #8 côté backend.
 
-Le badge d'état reste à placer dans le README au ticket #11. À faire une fois à la main dans
-GitHub : les paquets GHCR sont créés privés, leur visibilité publique n'est pas réglable depuis le
-workflow.
+Le badge d'état reste à placer dans le README au ticket #11. Rien à régler à la main côté GitHub :
+publiés par un workflow depuis un dépôt public, les paquets en héritent la visibilité, et un
+`docker pull` anonyme des deux images fonctionne (vérifié par une requête non authentifiée au
+registre).
 
 ---
 
