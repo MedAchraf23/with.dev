@@ -114,20 +114,32 @@ publiés par un workflow depuis un dépôt public, les paquets en héritent la v
 `docker pull` anonyme des deux images fonctionne (vérifié par une requête non authentifiée au
 registre).
 
+### #11 — README
+
+Refonte complète du `README.md` racine, écrit pour un recruteur ou un jury : badge de la CI,
+commande unique de lancement, ce que fait l'application et son périmètre assumé, table des
+endpoints, stack, architecture expliquée couche par couche, décisions techniques, tests,
+répartition du travail et limites assumées.
+
+Le README précédent décrivait un état dépassé : port 8080, prérequis Java / Node / PostgreSQL /
+Supabase alors que `docker compose up` ne demande plus rien depuis #8, et un « accès protégé au
+tableau de bord » supprimé au ticket #7. Ni les offres ni le profil n'y figuraient.
+
+Deux fichiers parasites supprimés au passage. `backend/READ_ME.md` n'était pas un doublon mais le
+README d'un **autre projet** (« MeetTalent », Java 25, MariaDB, jjwt). `frontend/README.md` était
+le template HeroUI d'origine, jamais modifié, expliquant comment cloner le dépôt de HeroUI.
+
+La section « Répartition du travail » distingue les deux phases du dépôt : le projet d'équipe de
+février-mars, où ma part est la gestion du compte utilisateur côté backend, et la reprise
+individuelle de septembre-octobre, qui couvre l'intégralité du parcours candidat visible
+aujourd'hui, la conteneurisation et la CI.
+
+**Reste à faire** : déposer trois captures d'écran dans `docs/images/` (connexion, offres,
+profil) et décommenter les trois lignes correspondantes de la section « Aperçu ».
+
 ---
 
 ## Empaquetage du projet
-
-### #11 — README
-
-À écrire **après** #8 et #10, pour pouvoir y intégrer la commande unique de lancement et le badge
-de la CI.
-
-**Contenu** — ce que fait le projet, captures d'écran, stack, architecture expliquée, lancement
-(via Docker et en mode développement), décisions techniques notables, et la part de contribution
-personnelle, le dépôt contenant des contributions d'autres membres de l'équipe.
-
-À traiter au passage : `READ_ME.md` fait doublon et ne contient qu'un renvoi.
 
 ### #12 — Déploiement en ligne *(optionnel)*
 
