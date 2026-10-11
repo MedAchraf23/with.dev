@@ -81,25 +81,37 @@ port 5173, seule origine acceptée par le CORS et attendue par les redirections 
 Effet de bord utile : les tests backend tournaient jusqu'ici grâce à un fichier non versionné, et
 échouaient donc sur un clone neuf. Ils passent maintenant sans configuration, ce qui débloque #10.
 
+### #10 — Intégration continue GitHub Actions
+
+`.github/workflows/ci.yml` : à chaque push, deux travaux en parallèle — backend (`./mvnw test`,
+70 tests sur H2) et frontend (`npm ci`, typage, 193 tests, build de production) — avec mise en
+cache des dépendances Maven et npm.
+
+**Périmètre élargi** par rapport à la description d'origine, qui s'arrêtait à la compilation et
+aux tests : un troisième travail construit les deux images et les publie sur
+`ghcr.io/medachraf23/with.dev/backend` et `.../frontend`, taguées avec le SHA du commit **et**
+`latest`. Il dépend de la réussite des deux premiers, et ne tourne que sur la branche principale :
+`latest` désigne ainsi toujours du code testé, et une branche de travail est vérifiée sans rien
+publier.
+
+Le nom du dépôt est converti en minuscules dans le workflow, `ghcr.io` refusant les majuscules de
+`MedAchraf23`. L'authentification au registre passe par le jeton fourni automatiquement à chaque
+exécution : aucun secret à configurer, dans la continuité du ticket #8.
+
+Effet de bord, de nouveau : `npm test` ne tenait que grâce au `.env` local, ignoré par git. Trois
+assertions comparent l'URL appelée à `http://localhost:8081/api`, et `supabase.api.ts` lève une
+exception à l'import quand ses variables sont vides, ce qui faisait échouer cinq fichiers de tests
+sur un clone neuf. Un `frontend/.env.test` versionné — chargé par Vite en mode test, prioritaire
+sur `.env`, sans aucun secret — rend les 193 tests verts sans configuration. Même nature de
+correctif que celui du ticket #8 côté backend.
+
+Le badge d'état reste à placer dans le README au ticket #11. À faire une fois à la main dans
+GitHub : les paquets GHCR sont créés privés, leur visibilité publique n'est pas réglable depuis le
+workflow.
+
 ---
 
 ## Empaquetage du projet
-
-### #10 — Intégration continue GitHub Actions
-
-**Objectif** : chaque push déclenche la compilation et les tests des deux applications, avec un
-résultat visible publiquement.
-
-**Livrables**
-
-- `.github/workflows/ci.yml` — deux travaux indépendants (backend et frontend) exécutés en
-  parallèle, avec mise en cache des dépendances Maven et npm.
-- Backend : `./mvnw test`. Frontend : `npm ci`, `npx tsc --noEmit`, `npm test`, `npm run build`.
-- Badge d'état à placer dans le README au ticket #11.
-
-**Point d'attention** — les tests backend tournent sur H2, donc aucun secret ni service externe
-n'est nécessaire dans la CI. Si des Testcontainers étaient introduits plus tard, il faudrait un
-service PostgreSQL dans le workflow.
 
 ### #11 — README
 
@@ -176,7 +188,9 @@ Chantier plus conséquent que #13, à arbitrer selon le temps disponible.
 - **Aucun endpoint n'est restreint par rôle** (`@PreAuthorize` absent du code de production).
   Le mécanisme est câblé et testé, mais inutile tant que seul le parcours candidat existe.
 - **Les tests backend tournent sur H2 alors que la production utilise PostgreSQL** — voir les
-  pièges connus dans `CLAUDE.md`. Des Testcontainers supprimeraient cet écart.
+  pièges connus dans `CLAUDE.md`. Des Testcontainers supprimeraient cet écart, au prix d'un
+  service PostgreSQL à déclarer dans le workflow de CI, qui n'a aujourd'hui besoin d'aucun
+  service externe.
 - **Aucun outil de migration de schéma** : c'est `spring.jpa.hibernate.ddl-auto=update` qui crée
   les tables. Suffisant pour une base de démonstration recréée à volonté, inadapté à une vraie
   production où un schéma existant doit évoluer sans perte. Flyway serait le choix correct.

@@ -3,8 +3,9 @@
 node_modules
 dist
 
-# Les valeurs VITE_* arrivent par arguments de build, pas par ce fichier.
-.env
+# Les valeurs VITE_* arrivent par arguments de build, pas par ces fichiers.
+# .env.test ne sert qu'à vitest, et l'image ne lance aucun test.
+.env*
 
 *.md
 .gitignore

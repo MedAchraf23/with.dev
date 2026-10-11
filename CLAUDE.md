@@ -35,6 +35,9 @@ cd frontend && npm test             # 193 tests — Vitest, Testing Library, hap
 cd frontend && npx tsc --noEmit     # vérification du typage
 ```
 
+Ces mêmes commandes sont rejouées à chaque push par `.github/workflows/ci.yml`, qui publie
+ensuite les deux images sur `ghcr.io` si tout est vert.
+
 ## Architecture
 
 **Backend** — couches `api` / `domain` / `core` :
@@ -101,6 +104,18 @@ recevant le statut en paramètre.
   « KEY » dans le nom. Une clé `publishable` est publique par conception.
 - **Un backend lancé sur la machine bloque `docker compose up`** : conflit sur le port 8081. Même
   chose pour `npm run dev` et le port 5173.
+- **`frontend/.env.test` est versionné et nécessaire aux tests** : sans lui, `npm test` ne passe
+  que sur une machine possédant un `.env`. Trois assertions de `backend.api.test.ts` comparent
+  l'URL appelée à `http://localhost:8081/api`, et `supabase.api.ts` lève une exception dès son
+  import quand `VITE_SUPABASE_*` sont vides — ce qui fait échouer cinq fichiers de tests, dont
+  ceux qui n'utilisent Supabase qu'indirectement via `backend.api`. Vite charge ce fichier en
+  mode test et le fait primer sur `.env`.
+- **`ghcr.io` refuse les majuscules dans un nom d'image**, alors que le dépôt s'appelle
+  `MedAchraf23/with.dev`. Le workflow convertit `GITHUB_REPOSITORY` en minuscules ; sans cela, le
+  push échoue sur `invalid reference format`.
+- **Les paquets GHCR sont créés privés** : un `docker pull` anonyme échoue tant que leur
+  visibilité n'a pas été passée à publique à la main dans GitHub. Ce réglage n'est pas accessible
+  depuis le workflow.
 - **L'historique git contient le mot de passe d'un ancien projet Supabase** (`zpcafhjuotmpncrzihkq`,
   commits antérieurs à `ccd691e`). À supprimer ou faire tourner avant de rendre le dépôt public.
 

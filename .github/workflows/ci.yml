@@ -1,0 +1,157 @@
+# Intégration continue : chaque push compile et teste les deux applications, puis
+# publie les images Docker sur GitHub Container Registry si — et seulement si —
+# les deux suites de tests sont vertes.
+name: CI
+
+# Pas de filtre sur les branches : une branche de travail est testée comme la
+# branche principale. L'événement pull_request n'est pas écouté, il ferait tourner
+# deux fois le même workflow pour une branche poussée sur ce dépôt.
+on:
+  push:
+  workflow_dispatch:
+
+# Un push qui en remplace un autre sur la même branche annule l'exécution
+# précédente : inutile de vérifier un état déjà dépassé.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Lecture seule par défaut ; seul le travail de publication demande davantage.
+permissions:
+  contents: read
+
+env:
+  # Valeurs publiques, identiques à celles du docker-compose. Vite les fige à la
+  # compilation : elles doivent être connues au moment de construire l'image, et
+  # ne peuvent pas être fournies au démarrage du conteneur.
+  VITE_API_URL: http://localhost:8081/api
+  VITE_SUPABASE_URL: https://gfkuplmkrynlsuudtfmm.supabase.co
+  VITE_SUPABASE_ANON_KEY: sb_publishable_fI470_Ry-ih0T5B1FpmJZA_GD_qq_gh
+
+jobs:
+
+  backend:
+    name: Backend — tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Installer le JDK 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          # Met en cache ~/.m2/repository, la clé étant dérivée du pom.xml.
+          cache: maven
+
+      # Le wrapper est versionné avec son bit exécutable et vise Maven 3.9.12 :
+      # la version de Maven ne dépend donc pas de celle préinstallée sur le
+      # runner. Les tests tournent sur H2, aucune base ni secret n'est requis.
+      - name: Tests
+        run: ./mvnw -B test
+
+  frontend:
+    name: Frontend — typage, tests, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Installer Node 22
+        uses: actions/setup-node@v7
+        with:
+          # Même version majeure que l'étape de build de frontend/Dockerfile.
+          node-version: '22'
+          cache: npm
+          # Le lock n'est pas à la racine du dépôt : sans ce chemin, le cache ne
+          # trouve rien à indexer.
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      # Redondant avec le « tsc » que npm run build enchaîne, mais l'étape porte
+      # un nom : un échec de typage se lit immédiatement dans l'interface, sans
+      # ouvrir le journal du build.
+      - name: Vérification du typage
+        run: npx tsc --noEmit
+
+      # Aucune variable à fournir : frontend/.env.test est versionné et chargé
+      # par Vite en mode test.
+      - name: Tests
+        run: npm test
+
+      - name: Build de production
+        run: npm run build
+
+  images:
+    name: Publication des images sur GHCR
+    # Les deux travaux ci-dessus doivent réussir : « needs » suffit à l'imposer,
+    # un échec saute celui-ci.
+    needs: [backend, frontend]
+    # Les branches de travail sont testées mais ne publient rien : seule la
+    # branche principale produit des images, pour que « latest » reste fiable.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Indispensable pour pousser sur ghcr.io avec le jeton du workflow.
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Calculer le préfixe des images
+        # ghcr.io refuse les majuscules dans un nom d'image, alors que le dépôt
+        # s'appelle MedAchraf23/with.dev : la conversion est obligatoire, sinon
+        # le push échoue sur « invalid reference format ».
+        run: echo "IMAGES=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      # Buildx apporte le cache de couches entre deux exécutions (type=gha).
+      # Sans lui, chaque publication retéléchargerait toutes les dépendances
+      # Maven et npm à l'intérieur des images.
+      - name: Préparer Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Authentification auprès de ghcr.io
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          # Jeton fourni automatiquement à chaque exécution : rien à configurer
+          # dans les secrets du dépôt.
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image backend
+        uses: docker/build-push-action@v7
+        with:
+          context: backend
+          push: true
+          tags: |
+            ${{ env.IMAGES }}/backend:${{ github.sha }}
+            ${{ env.IMAGES }}/backend:latest
+          # Un cache par image : les deux builds n'ont aucune couche commune.
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Image frontend
+        uses: docker/build-push-action@v7
+        with:
+          context: frontend
+          push: true
+          tags: |
+            ${{ env.IMAGES }}/frontend:${{ github.sha }}
+            ${{ env.IMAGES }}/frontend:latest
+          # L'image publiée vise donc le backend sur localhost:8081, comme celle
+          # du compose. Un déploiement en ligne (ticket #12) imposera de changer
+          # ces valeurs, l'URL de l'API étant inscrite en dur dans le bundle.
+          build-args: |
+            VITE_API_URL=${{ env.VITE_API_URL }}
+            VITE_SUPABASE_URL=${{ env.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_ANON_KEY=${{ env.VITE_SUPABASE_ANON_KEY }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
