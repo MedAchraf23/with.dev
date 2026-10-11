@@ -154,13 +154,6 @@ le `.jar` — ni Maven, ni le JDK, ni les sources. L'image frontend ne contient 
 fichiers statiques. Les variables `VITE_*` passent par des arguments de build et non par des
 variables d'exécution, Vite les figeant à la compilation.
 
-**L'intégration continue publie les images.** À chaque push, deux travaux parallèles compilent et
-testent les deux applications. Les images sont ensuite **construites sur toutes les branches** —
-construire est une vérification au même titre qu'un test — mais **publiées depuis `main`
-seulement**, taguées avec le SHA du commit et `latest`, de sorte que `latest` ne désigne que du
-code testé. Elles sont publiques sur
-[GitHub Container Registry](https://github.com/MedAchraf23?tab=packages).
-
 ---
 
 ## Tests
@@ -173,6 +166,59 @@ cd frontend && npx tsc --noEmit
 
 Ces mêmes commandes sont rejouées à chaque push par l'intégration continue, sur une machine vierge
 et sans configuration — l'état du badge en haut de cette page en est le résultat.
+
+---
+
+## Intégration continue et livraison
+
+Chaque push déclenche [`.github/workflows/ci.yml`](.github/workflows/ci.yml) :
+
+```text
+push
+ │
+ ├─▶ Backend   ./mvnw test                                   70 tests  ─┐
+ │                                                                      ├─▶ si les deux sont verts
+ └─▶ Frontend  npm ci · tsc --noEmit · npm test · npm build  193 tests ─┘             │
+                     (les deux en parallèle, sur deux machines)                       ▼
+                                                              Images Docker backend et frontend
+                                                              construites sur toute branche,
+                                                              publiées sur ghcr.io depuis main
+```
+
+Quatre choix structurent cette chaîne.
+
+**Construire n'est pas publier.** Les images sont construites sur **toutes** les branches, parce
+que construire est une vérification au même titre qu'un test : un `Dockerfile` cassé est signalé
+avant la fusion, et non après. Mais elles ne sont **publiées que depuis `main`**, pour que le tag
+`latest` ne désigne jamais autre chose que du code fusionné et testé.
+
+**Deux tags par image.** Le SHA du commit, immuable, qui permet de savoir exactement quelle
+version tourne et d'y revenir ; et `latest`, mouvant, pour l'usage courant.
+
+**Aucun secret à configurer.** L'authentification au registre utilise le jeton que GitHub
+fabrique au début de chaque exécution et invalide à la fin. Rien n'est stocké dans les réglages du
+dépôt — prolongement direct du principe « aucun secret dans le dépôt ».
+
+**Les tests tournent sans configuration.** Ils passent sur une machine vierge, sans fichier
+d'environnement : un `frontend/.env.test` versionné, chargé par Vite uniquement en mode test,
+fournit les valeurs publiques dont les tests ont besoin. Sans lui, la suite ne passait que sur une
+machine disposant d'un `.env` local.
+
+Les dépendances Maven et npm sont mises en cache entre deux exécutions, de même que les couches
+Docker, ce qui ramène une exécution complète à quelques minutes.
+
+### Utiliser les images publiées
+
+Elles sont publiques, aucune authentification n'est nécessaire :
+
+```bash
+docker pull ghcr.io/medachraf23/with.dev/backend:latest
+docker pull ghcr.io/medachraf23/with.dev/frontend:latest
+```
+
+Elles sont visibles sur [la page Packages du dépôt](https://github.com/MedAchraf23?tab=packages).
+Lancer l'application reste toutefois l'affaire du `docker compose up` ci-dessus : c'est le fichier
+compose qui relie les trois conteneurs, publie les ports et impose l'ordre de démarrage.
 
 ---
 

@@ -119,7 +119,11 @@ registre).
 Refonte complète du `README.md` racine, écrit pour un recruteur ou un jury : badge de la CI,
 commande unique de lancement, ce que fait l'application et son périmètre assumé, table des
 endpoints, stack, architecture expliquée couche par couche, décisions techniques, tests,
-répartition du travail et limites assumées.
+intégration continue et livraison, répartition du travail et limites assumées.
+
+La CI a sa propre section plutôt qu'un paragraphe noyé dans les décisions techniques : un lecteur
+qui parcourt les titres doit la voir. Elle décrit la chaîne sous forme de schéma, les quatre choix
+qui la structurent, et donne les commandes de récupération des images publiées.
 
 Le README précédent décrivait un état dépassé : port 8080, prérequis Java / Node / PostgreSQL /
 Supabase alors que `docker compose up` ne demande plus rien depuis #8, et un « accès protégé au
